@@ -21,14 +21,12 @@ public class Manager {
 	public Manager() {
 		live = true;
 		port = 1234;
-		
 		listener = new Listener(port, initCBs());
 	}
 	
 	public Manager(int port){
 		live = true;
 		this.port = port;
-		
 		listener = new Listener(port, initCBs());
 	}
 	
