@@ -1,10 +1,22 @@
 package Server;
 
+import java.net.InetAddress;
+
 public class Clients {
 	
-	//TODO: take in a address and port number and set it to some variables
-	//TODO: set up some properties to return the variable values
-	public Clients(){
-		
+	private InetAddress address;
+	private int port;
+	
+	public Clients(InetAddress address, int port){
+		this.address = address;
+		this.port = port;
+	}
+	
+	public InetAddress Address(){
+		return address;
+	}
+	
+	public int Port(){
+		return port;
 	}
 }

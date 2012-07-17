@@ -30,6 +30,11 @@ public class Manager {
 		listener = new Listener(port, initCBs());
 	}
 	
+	// TODO: create operations on the game
+	public void identifyPackage(String data){
+		
+	}
+		
 	private listenerCBs initCBs(){
 		return new listenerCBs() {
 			public boolean isLive() {

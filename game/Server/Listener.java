@@ -3,13 +3,15 @@ package Server;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.text.ParseException;
 import java.util.ArrayList;
+import org.json.JSONObject;
 
 public class Listener {
 	
 	private DatagramSocket server;
 	private Manager.listenerCBs cbs;
-	private ArrayList clients;
+	private ArrayList<Clients> clients = new ArrayList<Clients>();
 	
 	public Listener(int port, Manager.listenerCBs cbs){
 		System.out.println("Starting server...");
@@ -33,6 +35,10 @@ public class Listener {
 			try{
 				// receives packages from client
 				server.receive(packet);
+				if (!newConnect(packet)){
+					
+				}
+				
 				System.out.print(extractData(packet));
 				//TODO: send data to be processed
 			} catch(IOException e){
@@ -41,23 +47,52 @@ public class Listener {
 		}
 	}
 	
+	private boolean newConnect(DatagramPacket packet){
+		JSONObject data = extractData(packet);
+		return true;
+	} 
+	
 	public void send(String value, int id){
 		// packages message for transport
 		byte[] data = value.getBytes();
-		//TODO: send package to specified address and port
-		DatagramPacket packet = new DatagramPacket(data, data.length);
+		// gets client address and port and creates a packet with the data and location
+		Clients person = clients.get(id);
+		DatagramPacket packet = new DatagramPacket(data, data.length, person.Address(), person.Port());
 		
-		//sends packet
 		try {
+			//sends packet
 			server.send(packet);
 		} catch (IOException e) {
-			System.out.print("failed to send package containing: \n\n" + value);
+			System.out.print("failed to send package to " + id +" containing: \n\n" + value);
 		}
 	}
 	
-	private String extractData(DatagramPacket packet){
-		// returns the string from the package
-		return packet.getData().toString();
+	public void broadcast(String value){
+		// packages message into bytes for transport
+		byte[] data = value.getBytes();
+		// loops through all the clients
+		for (int i=0; i<clients.size(); i++){
+			// gets client address and port and creates a packet with the data and location
+			Clients person = clients.get(i);
+			DatagramPacket packet = new DatagramPacket(data, data.length, person.Address(), person.Port());
+			
+			try{
+				// sends packet
+				server.send(packet);
+			} catch(IOException e){
+				System.out.print("failed to send to user " + i);
+			}
+			
+		}
 	}
 	
+	
+	private JSONObject extractData(DatagramPacket packet){
+		// returns the string from the package
+		try{
+		return new JSONObject(packet.getData().toString());
+		} catch(Exception e) {
+			return null;
+		}
+	}
 }
