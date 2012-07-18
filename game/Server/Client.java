@@ -2,12 +2,12 @@ package Server;
 
 import java.net.InetAddress;
 
-public class Clients {
+public class Client{
 	
 	private InetAddress address;
 	private int port;
 	
-	public Clients(InetAddress address, int port){
+	public Client(InetAddress address, int port){
 		this.address = address;
 		this.port = port;
 	}

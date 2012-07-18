@@ -7,11 +7,13 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import org.json.JSONObject;
 
+import GameLibrary.Consts;
+
 public class Listener {
 	
 	private DatagramSocket server;
 	private Manager.listenerCBs cbs;
-	private ArrayList<Clients> clients = new ArrayList<Clients>();
+	private ArrayList<Client> clients = new ArrayList<Client>();
 	
 	public Listener(int port, Manager.listenerCBs cbs){
 		System.out.println("Starting server...");
@@ -19,6 +21,7 @@ public class Listener {
 		
 		try{
 			server = new DatagramSocket(port);
+			System.out.println("Listening for clients...");
 			listen();
 		} catch(Exception e) {
 			System.out.println("Error: port in use");
@@ -35,20 +38,26 @@ public class Listener {
 			try{
 				// receives packages from client
 				server.receive(packet);
-				if (!newConnect(packet)){
-					
-				}
-				
-				System.out.print(extractData(packet));
-				//TODO: send data to be processed
+			    process(packet);
+			
 			} catch(IOException e){
 				System.out.print("Error: package issue");
 			}
 		}
 	}
 	
-	private boolean newConnect(DatagramPacket packet){
+	private boolean process(DatagramPacket packet){
+		// get a json object
 		JSONObject data = extractData(packet);
+		// check to see if userID is a connected user
+		int id = data.getInt("id");
+		if (id == Consts.DISCONNECTED){
+			// if not a connected user add to clients
+			clients.add(new Client(packet.getAddress(), packet.getPort()));
+			// change the userID value to its new value
+			data.put("userID", clients.size()-1);
+		}
+		cbs.identifyPackage(data);
 		return true;
 	} 
 	
@@ -56,7 +65,7 @@ public class Listener {
 		// packages message for transport
 		byte[] data = value.getBytes();
 		// gets client address and port and creates a packet with the data and location
-		Clients person = clients.get(id);
+		Client person = clients.get(id);
 		DatagramPacket packet = new DatagramPacket(data, data.length, person.Address(), person.Port());
 		
 		try {
@@ -73,7 +82,7 @@ public class Listener {
 		// loops through all the clients
 		for (int i=0; i<clients.size(); i++){
 			// gets client address and port and creates a packet with the data and location
-			Clients person = clients.get(i);
+			Client person = clients.get(i);
 			DatagramPacket packet = new DatagramPacket(data, data.length, person.Address(), person.Port());
 			
 			try{

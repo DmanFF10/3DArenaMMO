@@ -1,4 +1,6 @@
 package Server;
+import org.json.JSONObject;
+
 import GameLibrary.*;
 
 public class Manager {
@@ -9,6 +11,7 @@ public class Manager {
 	// callback declaration
 	public interface listenerCBs{
 		boolean isLive();
+		void identifyPackage(JSONObject data);
 	}
 	
 	// management variables
@@ -31,14 +34,16 @@ public class Manager {
 	}
 	
 	// TODO: create operations on the game
-	public void identifyPackage(String data){
-		
-	}
 		
 	private listenerCBs initCBs(){
-		return new listenerCBs() {
+		 return new listenerCBs() {
+			
 			public boolean isLive() {
 				return live;
+			}
+			
+			public void identifyPackage(JSONObject data){
+				
 			}};
 	}
 }
