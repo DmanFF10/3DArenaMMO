@@ -1,5 +1,7 @@
 package GameLibrary;
 
+import java.util.ArrayList;
+
 import org.json.JSONObject;
 
 /*
@@ -8,28 +10,33 @@ import org.json.JSONObject;
 
 public class CreateJson {
 
-	public static JSONObject Login(int id, String username){
+	public static JSONObject Login(int id, String username, ArrayList<Character> units, Map map){
 		JSONObject jobject = new JSONObject();
 		jobject.put("id", id);
 		jobject.put("username", username);
 		jobject.put("type", "login");
+		jobject.put("characters", units);
+		jobject.put("map", map);
 		return jobject;
 	}
 	
-	public static JSONObject Command(int id, String username){
+	public static JSONObject Move(int id, String username, int[] location){
 		JSONObject jobject = new JSONObject();
 		jobject.put("id", id);
 		jobject.put("username", username);
-		jobject.put("type", "command");
+		jobject.put("type", "move");
+		jobject.put("location", location);
 		return jobject;
 	}
 	
-	public static JSONObject Message(int id, String username, String message){
+	public static JSONObject Message(int id, String username, String message, int style, int[] players){
 		JSONObject jobject = new JSONObject();
 		jobject.put("id", id);
 		jobject.put("username", username);
 		jobject.put("type", "message");
 		jobject.put("message", message);
+		jobject.put("style", style);
+		jobject.put("players", players);
 		return jobject;
 		
 	}

@@ -1,8 +1,11 @@
 package Client;
 
+/*
+ * starts the client
+ */
+
 public class Program {
 	public static void main(String[] args){
-		//TODO: Initialize the manager class
-		System.out.print("engauged");
+		Manager program = new Manager();
 	}
 }

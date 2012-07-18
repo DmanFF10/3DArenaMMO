@@ -18,19 +18,19 @@ public class Manager {
 	private boolean live;
 	private int port;
 	private GameServer game;
-	private Listener listener;
+	private Listener sender;
 	
 	// constructors
 	public Manager() {
 		live = true;
 		port = 1234;
-		listener = new Listener(port, initCBs());
+		sender = new Listener(port, initCBs());
 	}
 	
 	public Manager(int port){
 		live = true;
 		this.port = port;
-		listener = new Listener(port, initCBs());
+		sender = new Listener(port, initCBs());
 	}
 	
 	// TODO: create operations on the game
@@ -43,7 +43,15 @@ public class Manager {
 			}
 			
 			public void identifyPackage(JSONObject data){
+				String type = data.getString("type");
+				if(type.equals("login")){
+					data.put("characters", game.getCharacters());
+					data.put("map", game.map);
+					sender.send(data.toString(), data.getInt("id"));
+				}
 				
+				else if (type.equals("message")){}
+			
 			}};
 	}
 }
