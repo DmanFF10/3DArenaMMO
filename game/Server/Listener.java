@@ -8,20 +8,28 @@ import java.util.ArrayList;
 import org.json.JSONObject;
 
 import GameLibrary.Consts;
+import GameLibrary.CreateJson;
+
+/*
+ * listens for client activities
+ */
 
 public class Listener {
-	
+
 	private DatagramSocket server;
 	private Manager.listenerCBs cbs;
 	private ArrayList<Client> clients = new ArrayList<Client>();
 	
 	public Listener(int port, Manager.listenerCBs cbs){
 		System.out.println("Starting server...");
+		// store callbacks 
 		this.cbs = cbs;
 		
 		try{
+			// create a server that is listening at the specified port
 			server = new DatagramSocket(port);
 			System.out.println("Listening for clients...");
+			// listen for incomming data
 			listen();
 		} catch(Exception e) {
 			System.out.println("Error: port in use");
@@ -38,7 +46,8 @@ public class Listener {
 			try{
 				// receives packages from client
 				server.receive(packet);
-			    process(packet);
+			    // sends the packet to be processed
+				process(packet);
 			
 			} catch(IOException e){
 				System.out.print("Error: package issue");
@@ -46,7 +55,7 @@ public class Listener {
 		}
 	}
 	
-	private boolean process(DatagramPacket packet){
+	private void process(DatagramPacket packet){
 		// get a json object
 		JSONObject data = extractData(packet);
 		// check to see if userID is a connected user
@@ -54,11 +63,12 @@ public class Listener {
 		if (id == Consts.DISCONNECTED){
 			// if not a connected user add to clients
 			clients.add(new Client(packet.getAddress(), packet.getPort()));
-			// change the userID value to its new value
-			data.put("userID", clients.size()-1);
+			// creates a new object with the clients new id
+			data = CreateJson.Login(clients.size()-1, data.getString("username"));
+
 		}
+		// sends package to be utilized by the game
 		cbs.identifyPackage(data);
-		return true;
 	} 
 	
 	public void send(String value, int id){

@@ -43,15 +43,15 @@ public class Manager {
 			}
 			
 			public void identifyPackage(JSONObject data){
-				String type = data.getString("type");
-				if(type.equals("login")){
-					data.put("characters", game.getCharacters());
-					data.put("map", game.map);
-					sender.send(data.toString(), data.getInt("id"));
+				int type = data.getInt("type");
+			    switch(type){
+					
+			    	case Consts.TYPE_LOGIN:
+				    	data.put("characters", game.getCharacters());
+						data.put("map", game.map);
+						sender.send(data.toString(), data.getInt("id"));
+			    		break;
 				}
-				
-				else if (type.equals("message")){}
-			
 			}};
 	}
 }
