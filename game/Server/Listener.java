@@ -21,22 +21,20 @@ public class Listener {
 	private ArrayList<Client> clients = new ArrayList<Client>();
 	
 	public Listener(int port, Manager.listenerCBs cbs){
-		System.out.println("Starting server...");
-		// store callbacks 
+		// Callbacks
 		this.cbs = cbs;
+		System.out.println("Starting server...");
 		
 		try{
 			// create a server that is listening at the specified port
 			server = new DatagramSocket(port);
-			System.out.println("Listening for clients...");
-			// listen for incomming data
-			listen();
 		} catch(Exception e) {
 			System.out.println("Error: port in use");
 		}
 	}
 	
-	private void listen() {
+	public void Start() {
+		System.out.println("Listening for clients...");
 		// creates datagram packet
 		byte[] data = new byte[2024];
 		DatagramPacket packet = new DatagramPacket(data, data.length);
@@ -65,6 +63,7 @@ public class Listener {
 			clients.add(new Client(packet.getAddress(), packet.getPort()));
 			// creates a new object with the clients new id
 			data = CreateJson.Login(clients.size()-1, data.getString("username"));
+			System.out.println("client " + data.getInt("id") + " has connected username: " + data.getString("username"));
 
 		}
 		// sends package to be utilized by the game
@@ -109,7 +108,7 @@ public class Listener {
 	private JSONObject extractData(DatagramPacket packet){
 		// returns the string from the package
 		try{
-		return new JSONObject(packet.getData().toString());
+		return new JSONObject(new String(packet.getData(), 0, packet.getLength()));
 		} catch(Exception e) {
 			return null;
 		}

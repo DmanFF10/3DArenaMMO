@@ -10,12 +10,15 @@ import java.util.ArrayList;
 public class GameClient {
 
 	private ArrayList<Character> characters = new ArrayList<Character>();
+	private int id;
 	public Map map;
 	
-	public GameClient(){ }
+	public int getID(){
+		return id;
+	}
 	
-	public void setMap(Map map){
-		this.map = map;
+	public void setID(int id){
+		this.id = id;
 	}
 	
 	public void setCharacters(ArrayList<Character> characters){

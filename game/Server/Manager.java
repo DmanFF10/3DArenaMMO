@@ -15,25 +15,25 @@ public class Manager {
 	}
 	
 	// management variables
-	private boolean live;
+	private boolean live = true;
 	private int port;
 	private GameServer game;
 	private Listener sender;
 	
 	// constructors
 	public Manager() {
-		live = true;
 		port = 1234;
+		game = new GameServer();
 		sender = new Listener(port, initCBs());
+		sender.Start();
 	}
 	
 	public Manager(int port){
-		live = true;
 		this.port = port;
+		game = new GameServer();
 		sender = new Listener(port, initCBs());
+		sender.Start();
 	}
-	
-	// TODO: create operations on the game
 		
 	private listenerCBs initCBs(){
 		 return new listenerCBs() {
@@ -43,15 +43,19 @@ public class Manager {
 			}
 			
 			public void identifyPackage(JSONObject data){
+				// get the type and do appropriate operations
 				int type = data.getInt("type");
 			    switch(type){
 					
 			    	case Consts.TYPE_LOGIN:
-				    	data.put("characters", game.getCharacters());
-						data.put("map", game.map);
+			    		// create login object to send back to the client with startup information
+			    		data = CreateJson.Login(data.getInt("id"), data.getString("username"), 
+			    									game.getCharacters(), game.map);
+			    		// send data to client
 						sender.send(data.toString(), data.getInt("id"));
 			    		break;
 				}
-			}};
+			}
+		};
 	}
 }
