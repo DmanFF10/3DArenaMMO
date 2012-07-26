@@ -3,8 +3,6 @@ package Client;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 import org.json.JSONObject;
 import GameLibrary.Consts;
 import GameLibrary.CreateJson;
@@ -23,10 +21,10 @@ public class Listener extends Thread {
 	
 	int port;
 	InetAddress address;
-	private Manager.listenerCBs cbs;
+	private Callbacks.listenerCBs cbs;
 	private DatagramSocket client;
 	
-	public Listener(String address, int port, Manager.listenerCBs cbs){
+	public Listener(String address, int port, Callbacks.listenerCBs cbs){
 		this.port = port;
 		this.cbs = cbs;
 		try {
@@ -34,15 +32,14 @@ public class Listener extends Thread {
 			this.address = InetAddress.getByName(address);
 			
 		} catch (Exception e) {}
-		
 	}
 	
 	public void send(String message){
 		byte[] data = message.getBytes();
 		DatagramPacket packet = new DatagramPacket(data, data.length, address, port);
-		
 		try{
 			client.send(packet);
+			
 		} catch(Exception e){}
 	}
 	
@@ -60,6 +57,7 @@ public class Listener extends Thread {
 		    
 		    }catch(Exception e){}
 		}
+		System.out.println("ending listening operations...");
 		
 	}
 }

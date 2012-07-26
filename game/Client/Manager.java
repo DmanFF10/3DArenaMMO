@@ -2,6 +2,9 @@ package Client;
 
 import java.util.ArrayList;
 import org.json.JSONObject;
+
+import Client.Callbacks.listenerCBs;
+import Client.Callbacks.visualizerCBs;
 import GameLibrary.*;
 import GameLibrary.Character;
 /*
@@ -10,12 +13,6 @@ import GameLibrary.Character;
  */
 
 public class Manager {
-	
-	public interface listenerCBs{
-		boolean isLive();
-		void initConnect();
-		void identifyPackage(JSONObject data);
-	}
 	
 	private boolean live = true;
 	private int port;
@@ -29,7 +26,8 @@ public class Manager {
 		address = "127.0.0.1";
 		game = new GameClient();
 		sender = new Listener(address, port, initCBs());
-		view = new Visualizer();
+		view = new Visualizer(vizCBs());
+		view.start();
 		sender.start();
 	}
 	
@@ -38,21 +36,23 @@ public class Manager {
 		this.address = address;
 		game = new GameClient();
 		sender = new Listener(address, port, initCBs());
-		view = new Visualizer();
+		view = new Visualizer(vizCBs());
+		view.start();
 		sender.start();
 	}
 	
 	private listenerCBs initCBs(){
-		 return new listenerCBs() {
-			
+		// returns the callback functions for the listener object 
+		return new listenerCBs() {
+			// returns the state of the program
 			public boolean isLive() {
 				return live;
-			}
+			} 
 			
-			public void initConnect(){
-				
-			}
+			// does initial connection operations
+			public void initConnect(){}
 			
+			@SuppressWarnings("unchecked")
 			public void identifyPackage(JSONObject data){
 				// get the type and do appropriate operations
 				int type = data.getInt("type");
@@ -63,6 +63,21 @@ public class Manager {
 			    		game.map = (Map)data.get("map");
 			    		break;
 				}
-			}};
+			}
+		};
+	}
+	
+	
+	
+	private visualizerCBs vizCBs(){
+		// returns the callback functions for the visualizer object
+		return new visualizerCBs(){
+			// sets the state of the program to false
+			public void endLive(){
+				live = false;
+			}
+			
+			
+		};
 	}
 }
