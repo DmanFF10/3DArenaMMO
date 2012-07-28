@@ -13,6 +13,12 @@ public class GameClient {
 	private int id;
 	public Map map;
 	
+	public GameClient(){
+		map = new Map();
+		//NOTE: this is simply a test
+		//map.readFromFile();
+	}
+	
 	public int getID(){
 		return id;
 	}
@@ -32,5 +38,4 @@ public class GameClient {
 	public void setCharacter(int id, Character unit){
 		characters.set(id, unit);
 	}
-	
 }

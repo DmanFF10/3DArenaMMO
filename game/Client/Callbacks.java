@@ -1,6 +1,7 @@
 package Client;
 
 import org.json.JSONObject;
+import GameLibrary.Map;
 
 public class Callbacks {
 
@@ -12,6 +13,7 @@ public class Callbacks {
 	
 	public interface visualizerCBs{
 		void endLive();
+		Map map();
 	}
 	
 	

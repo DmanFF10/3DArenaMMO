@@ -13,7 +13,7 @@ public class GameServer {
 	public Map map;
 	
 	public GameServer(){
-		map = new Map(500, 500, 500);
+		map = new Map();
 	}
 	
 	public ArrayList<Character> getCharacters(){

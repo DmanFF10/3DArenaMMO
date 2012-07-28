@@ -25,20 +25,20 @@ public class Manager {
 		port = 1234;
 		address = "127.0.0.1";
 		game = new GameClient();
-		sender = new Listener(address, port, initCBs());
 		view = new Visualizer(vizCBs());
 		view.start();
-		sender.start();
+		//sender = new Listener(address, port, initCBs());
+		//sender.start();
 	}
 	
 	public Manager(String address, int port){
 		this.port = port;
 		this.address = address;
-		game = new GameClient();
-		sender = new Listener(address, port, initCBs());
 		view = new Visualizer(vizCBs());
 		view.start();
-		sender.start();
+		//game = new GameClient();
+		//sender = new Listener(address, port, initCBs());
+		//sender.start();
 	}
 	
 	private listenerCBs initCBs(){
@@ -76,8 +76,9 @@ public class Manager {
 			public void endLive(){
 				live = false;
 			}
-			
-			
+			public Map map(){
+				return game.map;
+			}
 		};
 	}
 }
