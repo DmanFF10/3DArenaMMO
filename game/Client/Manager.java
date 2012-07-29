@@ -22,6 +22,7 @@ public class Manager {
 	private Visualizer view;
 	
 	public Manager(){
+		Logger.log(Logger.INFO, "Client Started");
 		port = 1234;
 		address = "127.0.0.1";
 		game = new GameClient();

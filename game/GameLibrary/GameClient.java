@@ -14,9 +14,7 @@ public class GameClient {
 	public Map map;
 	
 	public GameClient(){
-		map = new Map();
-		//NOTE: this is simply a test
-		//map.readFromFile();
+		map = Loader.readMap("sdfdsf");
 	}
 	
 	public int getID(){

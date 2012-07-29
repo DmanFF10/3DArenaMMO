@@ -2,20 +2,15 @@ package GameLibrary;
 
 import java.util.ArrayList;
 
+import org.lwjgl.util.vector.Vector3f;
+
 public class Sector {
 
-	private ArrayList<Polygon> objects = new ArrayList<Polygon>();
+	public ArrayList<Polygon> objects = new ArrayList<Polygon>();
+	public Vector3f tranloc;
 	
-	public int size(){
-		return objects.size();
-	}
-	
-	public void addPolygon(Polygon obj){
-		objects.add(obj);
-	}
-	
-	public Polygon getPolygon(int index){
-		return objects.get(index);
+	public Sector(float x, float y, float z){
+		tranloc = new Vector3f(x,y,z);
 	}
 	
 }

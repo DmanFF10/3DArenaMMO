@@ -6,11 +6,13 @@ import static org.lwjgl.opengl.GL11.*;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.*;
+import org.lwjgl.util.Color;
+import org.lwjgl.util.vector.Vector3f;
 
+import GameLibrary.Face;
 import GameLibrary.Map;
 import GameLibrary.Polygon;
 import GameLibrary.Sector;
-import GameLibrary.Vertex;
 import static org.lwjgl.util.glu.GLU.gluPerspective;
 
 
@@ -19,6 +21,7 @@ import static org.lwjgl.util.glu.GLU.gluPerspective;
  */
 
 public class Visualizer extends Thread {
+	private static final int GL_TRIANGLE = 0;
 	// hold the callbacks
 	private Callbacks.visualizerCBs cbs;
 	// height and width of the display
@@ -65,34 +68,48 @@ public class Visualizer extends Thread {
 		glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 		glLoadIdentity();
 		
+		// secter and polygon translation variables
+		Vector3f sloc;
+		Vector3f ploc;
+		
+		Map map = cbs.map();
 		float tranx = -camera.X;
 		float trany = -camera.Y;
 		float tranz = -camera.Z;
-		float rotateX = 360.0f - camera.Xrot;
-		float rotateY = 360.0f - camera.Yrot;
+		float rotateX = -camera.Xrot;
+		float rotateY = -camera.Yrot;
 		// draw map
 		//NOTE: i dont like this. i will most likely change it
-		Map map = cbs.map();
-		glRotatef(rotateX, 0f, 1f, 0f);
-		glRotatef(rotateY, 1f, 0f, 0f);
-		glTranslatef(tranx, trany, tranz);
-		glTranslatef(tranx, trany, tranz);
-		for (int snum = 0; snum<map.size(); snum++){
-			Sector sector =  map.getSector(snum);
-			for (int onum = 0; onum<sector.size(); onum++){
-				Polygon object = sector.getPolygon(onum);
+		
+		for (int snum = 0; snum<map.sectors.size(); snum++){
+			Sector sector =  map.sectors.get(snum);
+			sloc = sector.tranloc;
+			
+			for (int onum = 0; onum<sector.objects.size(); onum++){
+				Polygon object = sector.objects.get(onum);
+				ploc = object.tranloc;
+				// translates to the objects draw location
+				glRotatef(rotateX, 1f, 0f, 0f);
+				glRotatef(rotateY, 0f, 1f, 0f);
+				glTranslatef(tranx, trany, tranz);
+				glTranslatef(sloc.x, sloc.y, sloc.z);
+				glTranslatef(ploc.x, ploc.y, ploc.z);
+				// draws polygon
 				glBegin(GL_POLYGON);
-				for(int vnum = 0; vnum<object.size(); vnum++){
-					Vertex vertex = object.getVertex(vnum);
-					glVertex3d(vertex.X, vertex.Y, vertex.Z);
+				for(Face face : object.faces){
+					for (int i = 0; i<face.vertex.size(); i++){
+						Vector3f normal = object.normals.get(face.normal.get(i) -1);
+						Vector3f vertex = object.vertices.get(face.vertex.get(i)-1);
+						glNormal3f(normal.x, normal.y, normal.z);
+						glVertex3f(vertex.x, vertex.y, vertex.z);
+					}
 				}
 				glEnd();
+				
+				// set position to the origin
+				glLoadIdentity();
 			}
-		}
-		
-		// set position to the origin
-		glLoadIdentity();
-		
+		}		
 		// draws data to the screen
 		Display.update();
 		// sets the fps
@@ -103,8 +120,8 @@ public class Visualizer extends Thread {
 		if (Mouse.isButtonDown(0)){
 			int x = Mouse.getDX();
 			int y = Mouse.getDY();
-			camera.Xrot += x/5;
-			camera.Yrot += y/5;
+			camera.Xrot += y/5;
+			camera.Yrot += x/5;
 		}
 		
 		if (Keyboard.isKeyDown(Keyboard.KEY_DOWN)){
