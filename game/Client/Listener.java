@@ -3,9 +3,9 @@ package Client;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import org.json.JSONObject;
-import GameLibrary.Consts;
-import GameLibrary.CreateJson;
+import GameLibrary.Logger;
+import GameLibrary.Serializer;
+import GameLibrary.Thing;
 
 
 /*
@@ -19,8 +19,8 @@ public class Listener extends Thread {
 	 * sends and receives data from server
 	 */
 	
-	int port;
-	InetAddress address;
+	private int port;
+	private InetAddress address;
 	private Callbacks.listenerCBs cbs;
 	private DatagramSocket client;
 	
@@ -29,35 +29,39 @@ public class Listener extends Thread {
 		this.cbs = cbs;
 		try {
 			client = new DatagramSocket();
+			client.setSoTimeout(2000);
 			this.address = InetAddress.getByName(address);
 			
 		} catch (Exception e) {}
 	}
-	
-	public void send(String message){
-		byte[] data = message.getBytes();
-		DatagramPacket packet = new DatagramPacket(data, data.length, address, port);
-		try{
-			client.send(packet);
-			
-		} catch(Exception e){}
-	}
-	
 
 	public void run(){
-		send(CreateJson.Login(Consts.DISCONNECTED, "just for fun").toString());
+		// send connection request
+		send(cbs.initConnect());
 		
-		byte[] data = new byte[2024];
+		// sets up package
+		byte[] data = new byte[1000000];
 		DatagramPacket packet = new DatagramPacket(data, data.length);
 		
 		while(cbs.isLive()){
 		    try{
+		    	// receives package and process
 		    	client.receive(packet);
-		    	cbs.identifyPackage(new JSONObject(packet.getData().toString()));
+		    	cbs.identifyPackage((Thing)Serializer.unpack(packet.getData()));
 		    
 		    }catch(Exception e){}
 		}
-		System.out.println("ending listening operations...");
+		Logger.log(Logger.INFO, "Ending listener operations"); 
 		
+	}
+	
+	public void send(Thing object){
+		try{
+			byte[] data = Serializer.pack(object);
+			DatagramPacket packet = new DatagramPacket(data, data.length, address, port);
+			client.send(packet);		
+		} catch(Exception e){
+			Logger.log(Logger.ERROR, "Failed to send packet");
+		}
 	}
 }

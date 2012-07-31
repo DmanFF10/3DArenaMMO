@@ -1,21 +1,25 @@
 package GameLibrary;
 
+import java.io.Serializable;
+
 /*
  *  Character locations and stats
  */
 
-public class Character {
+public class Character implements Serializable{
 
-	public int X;
-	public int Y;
-	public int Z;
-	Polygon object;
+	public float X;
+	public float Y;
+	public float Z;
+	public int speed = 100;
+	public Polygon object;
 	// TODO: add texture stuff
 	
-	public Character(int x, int y, int z){
-		X = x;
-		Y = y;
-		Z = z;
+	public Character(float x, float y, float z){
+		X = x; Y = y; Z = z;
+		object = Loader.readObject("test", x, y, z);
 	}
+	
+	
 	
 }

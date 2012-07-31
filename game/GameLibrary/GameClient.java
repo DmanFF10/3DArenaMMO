@@ -11,10 +11,12 @@ public class GameClient {
 
 	private ArrayList<Character> characters = new ArrayList<Character>();
 	private int id;
+	private String name;
 	public Map map;
 	
-	public GameClient(){
-		map = Loader.readMap("sdfdsf");
+	public GameClient(String name){
+		id = Consts.DISCONNECTED;
+		this.name = name;
 	}
 	
 	public int getID(){
@@ -25,8 +27,12 @@ public class GameClient {
 		this.id = id;
 	}
 	
-	public void setCharacters(ArrayList<Character> characters){
-		this.characters = characters;
+	public String getName(){
+		return name;
+	}
+	
+	public void setName(String name){
+		this.name = name;
 	}
 	
 	public Character getCharacter(int id){
@@ -35,5 +41,9 @@ public class GameClient {
 	
 	public void setCharacter(int id, Character unit){
 		characters.set(id, unit);
+	}
+	
+	public void setCharacters(ArrayList<Character> characters){
+		this.characters = characters;
 	}
 }

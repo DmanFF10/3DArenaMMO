@@ -1,19 +1,23 @@
 package Client;
 
-import org.json.JSONObject;
-import GameLibrary.Map;
+import GameLibrary.GameClient;
+import GameLibrary.Thing;
+
+ /* callbacks for the client to reference important game data */
 
 public class Callbacks {
 
+	// callback for the listener class
 	public interface listenerCBs{
 		boolean isLive();
-		void initConnect();
-		void identifyPackage(JSONObject data);
+		Thing initConnect();
+		void identifyPackage(Thing data);
 	}
 	
+	// callback for the visualizer class
 	public interface visualizerCBs{
 		void endLive();
-		Map map();
+		GameClient game();
 	}
 	
 	

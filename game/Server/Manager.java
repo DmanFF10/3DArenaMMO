@@ -1,5 +1,4 @@
 package Server;
-import org.json.JSONObject;
 
 import GameLibrary.*;
 
@@ -11,26 +10,20 @@ public class Manager {
 	// callback declaration
 	public interface listenerCBs{
 		boolean isLive();
-		void identifyPackage(JSONObject data);
+		void identifyPackage(Thing data);
 	}
 	
 	// management variables
 	private boolean live = true;
-	private int port;
+	private int port = 1234;
 	private GameServer game;
 	private Listener sender;
 	
 	// constructors
 	public Manager() {
-		port = 1234;
-		game = new GameServer();
-		sender = new Listener(port, initCBs());
-		sender.Start();
-	}
-	
-	public Manager(int port){
-		this.port = port;
-		game = new GameServer();
+		Logger.startLogger("Server");
+		
+		game = new GameServer("test");
 		sender = new Listener(port, initCBs());
 		sender.Start();
 	}
@@ -42,17 +35,13 @@ public class Manager {
 				return live;
 			}
 			
-			public void identifyPackage(JSONObject data){
-				// get the type and do appropriate operations
-				int type = data.getInt("type");
-			    switch(type){
-					
+			public void identifyPackage(Thing data){
+			    switch(data.getType()){
+			    	
 			    	case Consts.TYPE_LOGIN:
-			    		// create login object to send back to the client with startup information
-			    		data = CreateJson.Login(data.getInt("id"), data.getString("username"), 
-			    									game.getCharacters(), game.map);
-			    		// send data to client
-						sender.send(data.toString(), data.getInt("id"));
+			    		game.addCharacter();
+			    		Login login = new Login(data.getID(), data.getUsername(), game.getCharacters(), game.map);
+			    		sender.send(login, data.getID());
 			    		break;
 				}
 			}

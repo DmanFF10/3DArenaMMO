@@ -13,8 +13,7 @@ public class Loader {
 		float x,y,z;
 		Sector sector = null;
 		Map map = new Map();
-	    //TODO: remove this after tests are complete
-		filename = "test";
+	    
 		try {
 			String cwd = new java.io.File( "." ).getCanonicalPath();
 			BufferedReader in = new BufferedReader(new FileReader(cwd + "/game/Client/res/maps/" + filename + ".mp"));
@@ -52,8 +51,6 @@ public class Loader {
 	
 	public static Polygon readObject(String filename, float x, float y, float z){
 		Polygon object = new Polygon(x, y, z);
-	    //TODO: remove this after tests are complete
-	    filename = "test";
 	    
 		try {
 			String cwd = new java.io.File( "." ).getCanonicalPath();

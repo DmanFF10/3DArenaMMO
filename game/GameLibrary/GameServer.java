@@ -12,8 +12,8 @@ public class GameServer {
 	private ArrayList<Character> characters = new ArrayList<Character>();
 	public Map map;
 	
-	public GameServer(){
-		map = new Map();
+	public GameServer(String mapname){
+		map = Loader.readMap(mapname);
 	}
 	
 	public ArrayList<Character> getCharacters(){
@@ -26,6 +26,10 @@ public class GameServer {
 	
 	public void setCharacter(int id, Character unit){
 		characters.set(id, unit);
+	}
+	
+	public void addCharacter(){
+		characters.add(new Character(0f, 0f, 0f));
 	}
 	
 }
