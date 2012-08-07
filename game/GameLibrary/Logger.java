@@ -15,11 +15,13 @@ public class Logger {
 	
 	// identifies if the is writable too
 	private static boolean writable = true;
+	private static String filename = "";
 
 	public static void startLogger(String filename){
 		// attempts to open the file
 		try{
 			// if successful write a entry
+			Logger.filename = filename;
 			BufferedWriter out = new BufferedWriter(new FileWriter(filename+".log"));
 			out.write("[INFO] Started Logger");
 			out.newLine();
@@ -55,7 +57,7 @@ public class Logger {
 
 			// write the message to the file
 			try{
-				BufferedWriter out = new BufferedWriter(new FileWriter("arena.log", true));
+				BufferedWriter out = new BufferedWriter(new FileWriter(Logger.filename + ".log", true));
 				out.write(message);
 				out.newLine();
 				out.close();

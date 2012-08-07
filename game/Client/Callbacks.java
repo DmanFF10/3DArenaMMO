@@ -1,5 +1,7 @@
 package Client;
 
+import org.lwjgl.util.vector.Vector3f;
+
 import GameLibrary.GameClient;
 import GameLibrary.Thing;
 
@@ -17,6 +19,7 @@ public class Callbacks {
 	// callback for the visualizer class
 	public interface visualizerCBs{
 		void endLive();
+		void requestMove(Vector3f direction, Vector3f rotation);
 		GameClient game();
 	}
 	

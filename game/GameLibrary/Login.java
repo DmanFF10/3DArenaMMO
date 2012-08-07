@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 public class Login extends Thing implements Serializable{
 	
+	private static final long serialVersionUID = 1L;
 	private ArrayList<Character> characters;
 	private Map map;
 	

@@ -1,5 +1,7 @@
 package Client;
 
+import org.lwjgl.util.vector.Vector3f;
+
 import Client.Callbacks.listenerCBs;
 import Client.Callbacks.visualizerCBs;
 import Client.Visualizer.State;
@@ -8,6 +10,7 @@ import GameLibrary.*;
  * manages the clients game
  * sends and receives data to and from the listener
  */
+import GameLibrary.Character;
 
 public class Manager {
 	
@@ -56,7 +59,22 @@ public class Manager {
 			    		game.map = login.getMap();
 			    		view.setState(State.Connected);
 			    		break;
-				}
+			    	
+			    	case Consts.TYPE_MOVE:
+			    		Command cmd = (Command)data;
+			    		Character player = game.getCharacter(cmd.getID());
+			    		player.movement = cmd.getMovement();
+			    		player.object.position = cmd.getPosition();
+			    		player.object.rotation = cmd.getRotation();
+			    		break;
+			    		
+			    	case Consts.TYPE_NEW_PlAYER:
+			    		if(data.getID() < game.playerSize()){
+			    			game.setCharacter(data.getID(), ((Command)data).getCharacter());
+			    		} else{
+			    			game.addCharacter(((Command)data).getCharacter());
+			    		}
+			    }
 			}
 		};
 	}
@@ -69,6 +87,11 @@ public class Manager {
 			// sets the state of the program to false
 			public void endLive(){
 				live = false;
+			}
+			
+			public void requestMove(Vector3f direction, Vector3f rotation){
+				Command cmd = new Command(game.getID(), game.getName(), direction, rotation);
+				sender.send(cmd);
 			}
 			
 			// returns the game object

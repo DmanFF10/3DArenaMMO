@@ -46,4 +46,12 @@ public class GameClient {
 	public void setCharacters(ArrayList<Character> characters){
 		this.characters = characters;
 	}
+	
+	public void addCharacter(Character unit){
+		characters.add(unit);
+	}
+	
+	public int playerSize(){
+		return characters.size();
+	}
 }

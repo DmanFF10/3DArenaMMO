@@ -10,6 +10,7 @@ import java.util.ArrayList;
 
 public class Map implements Serializable{
 	
+	private static final long serialVersionUID = 1L;
 	public ArrayList<Sector> sectors = new ArrayList<Sector>();
 	
 }
