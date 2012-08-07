@@ -1,7 +1,16 @@
 3DArenaMMO
 ==========
 
-i am translating a mmo that i made in C# and adding the 3D element to it.
+The goal of this project is to make a fun 3d mmo.
+
+Simple Discription:
+    This mmo will be arena style were you will team up with other players and
+fight it out on the battle field. All the battle fields will be randomly
+generated giving each battle an original feel. on the field players earn
+gold from a variaty of sources that they can spend on equipment when they
+have finished that battle. all equipment will have quality ratings. when a 
+player joins a battle they will be placed against and with players with 
+similar ratings to keep the battle even.
 
 Requires:
     Java 1.7
