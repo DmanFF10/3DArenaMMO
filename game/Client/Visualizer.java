@@ -10,6 +10,7 @@ import org.lwjgl.util.vector.Vector3f;
 
 import GameLibrary.Consts;
 import GameLibrary.Face;
+import GameLibrary.GameClient;
 import GameLibrary.Logger;
 import GameLibrary.Map;
 import GameLibrary.Polygon;
@@ -22,11 +23,6 @@ import static org.lwjgl.util.glu.GLU.gluPerspective;
  */
 
 public class Visualizer extends Thread {
-	public float unitsize = 0.0002f;
-	public float rotationSpeed = .0125f;
-
-	//private UnicodeFont font;
-	//private DecimalFormat format = new DecimalFormat("#.#####");
 
 	public static enum State {
 		Disconnected, Connected
@@ -47,6 +43,7 @@ public class Visualizer extends Thread {
 	// the viewing object
 	private Camera camera = new Camera();
 	private Character player;
+	private GameClient game;
 	private Map map;
 
 	//inputs
@@ -54,12 +51,12 @@ public class Visualizer extends Thread {
 
 
 	public Visualizer(Callbacks.visualizerCBs	cbs){
+		// set callbacks
 		this.cbs = cbs;
 	}
 
 	public void run() {
 		initOpenGL();
-		initCamera();
 		lastFrame = getTime();
 		while(!Display.isCloseRequested()){
 			// renders the frames
@@ -71,6 +68,7 @@ public class Visualizer extends Thread {
 			case Connected:
 				inputs();
 				updateUnits();
+				updateCamera();
 				render();
 				break;
 			}
@@ -89,25 +87,31 @@ public class Visualizer extends Thread {
 		// sector and polygon translation variables
 		Vector3f sloc;
 		Vector3f ploc;
+		// view translation and rotations
 		Vector3f trans = new Vector3f(-camera.position.x, -camera.position.y, -camera.position.z);
-		Vector3f rotate = new Vector3f(-camera.rotation.x, -camera.rotation.y, -camera.rotation.z);		
+		Vector3f rotate = new Vector3f(-camera.rotation.x, -camera.rotation.y, -camera.rotation.z);
+		int playerSize = game.playerSize();
 
-		/* draw the map */
+		// loops through the sectors
 		for (int snum = 0; snum<map.sectors.size(); snum++){
+			// get each sectors objects and trans location 
 			Sector sector =  map.sectors.get(snum);
 			sloc = sector.position;
+			
+			// loops through the polygons
 			for (int onum = 0; onum<sector.objects.size(); onum++){
+				// get each objects trans location and vertices 
 				Polygon object = sector.objects.get(onum);
 				ploc = object.position;
 				// translates and rotates instead of rotating or translating the camera
 				// and draws the world
-				glRotatef(rotate.x, 0f, 1f, 0f);
-				glRotatef(rotate.y, 1f, 0f, 0f);
+				glRotatef(rotate.x, 1f, 0f, 0f);
+				glRotatef(rotate.y, 0f, 1f, 0f);
 				glTranslatef(trans.x, trans.y, trans.z);
 				glTranslatef(sloc.x, sloc.y, sloc.z);
 				glTranslatef(ploc.x, ploc.y, ploc.z);
-				// draws polygon
-
+				
+				// draws each object
 				glBegin(GL_POLYGON);
 				for(Face face : object.faces){
 					for (int i = 0; i<face.vertex.size(); i++){
@@ -118,20 +122,21 @@ public class Visualizer extends Thread {
 					}
 				}
 				glEnd();
-
+				
 				// set position to the origin
 				glLoadIdentity();
 			}
 
 		}
 
-		/* draw players */
-		for (int playerID = 0; playerID<cbs.game().playerSize(); playerID++){
-			Character unit = cbs.game().getCharacter(playerID);
-			glRotatef(rotate.x, 0f, 1f, 0f);
-			glRotatef(rotate.y, 1f, 0f, 0f);
+		// loop through all the players and draw them
+		for (int playerID = 0; playerID<playerSize; playerID++){
+			Character unit = game.getCharacter(playerID);
+			glRotatef(rotate.x, 1f, 0f, 0f);
+			glRotatef(rotate.y, 0f, 1f, 0f);
 			glTranslatef(trans.x, trans.y, trans.z);
 			glTranslatef(unit.object.position.x, unit.object.position.y, unit.object.position.z);
+			glRotatef(unit.object.rotation.y, 0f, 1f, 0f);
 			glBegin(GL_POLYGON);
 			for(Face face : unit.object.faces){
 				for (int i = 0; i<face.vertex.size(); i++){
@@ -151,74 +156,15 @@ public class Visualizer extends Thread {
 		Display.sync(60);
 	}
 
-	private void updateUnits(){
-		float xValue, zValue;
-		int id = cbs.game().getID();
-		for(int i=0; i<cbs.game().playerSize(); i++){
-			Character unit = cbs.game().getCharacter(i);
-			if (unit.movement.z == Consts.MOVE_BACKWORD_RIGHT){
-				float angle = unit.object.rotation.x;
-				float movement = (delta*(unit.speed * unitsize));
-				xValue = (float) Math.sin(Math.toRadians(angle)) * movement;
-				zValue = (float) Math.cos(Math.toRadians(angle)) * movement;
-				unit.object.position.z += zValue;
-				unit.object.position.x += xValue;
-				if (i == id){
-					camera.position.z += zValue;
-					camera.position.x += xValue;
-				}
-			}
-
-			if (unit.movement.z == Consts.MOVE_FORWORD_LEFT) {
-				float angle = unit.object.rotation.x;
-				float movement = (delta*(unit.speed * unitsize));
-				xValue = (float) Math.sin(Math.toRadians(angle)) * movement;
-				zValue = (float) Math.cos(Math.toRadians(angle)) * movement;
-				unit.object.position.z -= zValue;
-				unit.object.position.x -= xValue;
-				if (i == id){
-					camera.position.z -= zValue;
-					camera.position.x -= xValue;
-				}
-			}
-
-			if (unit.movement.x == Consts.MOVE_FORWORD_LEFT){
-				float angle = unit.object.rotation.x;
-				float movement = (delta*(unit.speed * unitsize));
-				zValue = (float) Math.sin(Math.toRadians(angle)) * movement;
-				xValue = (float) Math.cos(Math.toRadians(angle)) * movement;
-				unit.object.position.z -= zValue;
-				unit.object.position.x -= xValue;
-				if (i == id){
-					camera.position.z -= zValue;
-					camera.position.x -= xValue;
-				}
-			}
-
-			if (unit.movement.x == Consts.MOVE_BACKWORD_RIGHT){
-				float angle = unit.object.rotation.x;
-				float movement = (delta*(unit.speed * unitsize));
-				zValue = (float) Math.sin(Math.toRadians(angle)) * movement;
-				xValue = (float) Math.cos(Math.toRadians(angle)) * movement;
-				unit.object.position.z += zValue;
-				unit.object.position.x += xValue;
-				if (i == id){
-					camera.position.z += zValue;
-					camera.position.x += xValue;
-				}
-			}
-		}
-	}
-
 	private void inputs() {
 		// get time between frames
 		delta = getDelta();
+		// get game data
+		game = cbs.game();
 		// get map data
-		map = cbs.game().map;
+		map = game.map;
 		// get character data
-		player = cbs.game().getCharacter(cbs.game().getID());
-		// temp values
-		float xValue, yValue;
+		player = game.getCharacter(game.getID());
 		// stores the direction the player is moving
 		Vector3f direction = new Vector3f();
 
@@ -241,32 +187,24 @@ public class Visualizer extends Thread {
 		}
 
 		if (mouseLeft){
-			//TODO: make this go around the character object
-			int x = Mouse.getDX();
-			int y = Mouse.getDY();
-			xValue = x*rotationSpeed;
-			yValue = y*rotationSpeed;
-			camera.rotation.x += xValue;
-			camera.rotation.y += yValue;
-			player.object.rotation.x += xValue;
-			player.object.rotation.y += yValue;
+			int x = -Mouse.getDX();
+			camera.rotation.y += x;
+			player.object.rotation.y += x;	
 		}
-
+		
 		if (keyDown){
 			direction.z = Consts.MOVE_BACKWORD_RIGHT;
 		}
-
 		if (keyUp) {
 			direction.z = Consts.MOVE_FORWORD_LEFT;
 		}
-
 		if (keyLeft){
 			direction.x = Consts.MOVE_FORWORD_LEFT;
 		}
-
 		if (keyRight){
 			direction.x = Consts.MOVE_BACKWORD_RIGHT;
 		}
+		
 		// sends the move request to server
 		if(changed){
 			cbs.requestMove(direction, player.object.rotation);
@@ -329,8 +267,55 @@ public class Visualizer extends Thread {
 		glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 	}
 
-	private void initCamera(){
-		camera.position.set(0f, 3f, 8f);
+	private void updateUnits(){
+		float xValue, zValue;
+		for(int i=0; i<game.playerSize(); i++){
+			Character unit = game.getCharacter(i);
+			if (unit.movement.z == Consts.MOVE_BACKWORD_RIGHT){
+				float angle = unit.object.rotation.y;
+				float movement = (delta*(unit.speed * Consts.UNITSIZE));
+				xValue = (float) Math.sin(Math.toRadians(angle)) * movement;
+				zValue = (float) Math.cos(Math.toRadians(angle)) * movement;
+				unit.object.position.z += zValue;
+				unit.object.position.x += xValue;
+			}
+
+			if (unit.movement.z == Consts.MOVE_FORWORD_LEFT) {
+				float angle = unit.object.rotation.y;
+				float movement = (delta*(unit.speed * Consts.UNITSIZE));
+				xValue = (float) Math.sin(Math.toRadians(angle)) * movement;
+				zValue = (float) Math.cos(Math.toRadians(angle)) * movement;
+				unit.object.position.z -= zValue;
+				unit.object.position.x -= xValue;
+			}
+
+			if (unit.movement.x == Consts.MOVE_FORWORD_LEFT){
+				float angle = unit.object.rotation.y;
+				float movement = (delta*(unit.speed * Consts.UNITSIZE));
+				zValue = (float) Math.sin(Math.toRadians(angle)) * movement;
+				xValue = (float) Math.cos(Math.toRadians(angle)) * movement;
+				unit.object.position.z -= zValue;
+				unit.object.position.x -= xValue;
+			}
+
+			if (unit.movement.x == Consts.MOVE_BACKWORD_RIGHT){
+				float angle = unit.object.rotation.y;
+				float movement = (delta*(unit.speed * Consts.UNITSIZE));
+				zValue = (float) Math.sin(Math.toRadians(angle)) * movement;
+				xValue = (float) Math.cos(Math.toRadians(angle)) * movement;
+				unit.object.position.z += zValue;
+				unit.object.position.x += xValue;
+			}
+		}
+	}
+	
+	private void updateCamera(){
+		// sets the camera at its position relative to the player object
+		Vector3f position = player.object.position;
+		camera.position.y = position.y+3;
+		camera.position.x = (float) (Math.sin(Math.toRadians(camera.rotation.y))*10)+position.x;
+		camera.position.z = ((float) Math.cos(Math.toRadians(camera.rotation.y))*10)+position.z;
+		
 
 	}
 }
