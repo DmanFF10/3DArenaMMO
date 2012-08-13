@@ -1,25 +1,25 @@
 package GameLibrary;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 import org.lwjgl.util.vector.Vector3f;
 
 public class Command extends Thing implements Serializable {
 	private static final long serialVersionUID = 1L;
-	private Character player;
-	private String message;
+	private Object obj;
 	private int messageType;
 	private Vector3f movement, rotation, position;
 	
 	public Command(int id, String username, String message, int messageType){
 		super(id, username, Consts.TYPE_MESSAGE);
-		this.message = message;
+		this.obj = message;
 		this.messageType = messageType;
 	}
 	
 	public Command(int id, String username, Character player){
 		super(id, username, Consts.TYPE_NEW_PlAYER);
-		this.player = player;
+		this.obj = player;
 	}
 	
 	public Command(int id, String username, Vector3f movement, Vector3f rotation){
@@ -35,12 +35,13 @@ public class Command extends Thing implements Serializable {
 		this.rotation = rotation;
 	}
 	
-	public Character getCharacter(){
-		return player;
+	public Command(int id, String username, ArrayList<String> map){
+		super(id, username, Consts.TYPE_MAP);
+		this.obj = map;
 	}
 	
-	public String getMessage(){
-		return message;
+	public Object getObject(){
+		return obj;
 	}
 	
 	public int getMessageType(){

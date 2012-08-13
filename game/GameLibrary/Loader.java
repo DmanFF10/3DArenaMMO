@@ -20,6 +20,7 @@ public class Loader {
 			BufferedReader in = new BufferedReader(new FileReader(cwd + "/game/res/maps/" + filename + ".mp"));
 		    String str;
 		    while ((str = in.readLine()) != null) {
+		    	map.mapstring.add(str);
 		    	String[] list = str.split(" ");
 		    	if (list[0].equals("S")){
 		    		if (sector != null) {
@@ -50,6 +51,42 @@ public class Loader {
 		} catch(Exception e) {
 			e.printStackTrace();
 			return null;
+		}
+		return map;
+	}
+	
+	public static Map readMap(ArrayList<String> mapstring){
+		float x,y,z;
+		int r, g, b;
+		Sector sector = null;
+		Map map = new Map();
+		
+		for(String line : mapstring){
+			String[] list = line.split(" ");
+			if (list[0].equals("S")){
+	    		if (sector != null) {
+	    			map.sectors.add(sector);
+	    		}
+	    		x = Float.valueOf(list[1]);
+	    		y = Float.valueOf(list[2]);
+	    		z = Float.valueOf(list[3]);
+	    		sector = new Sector(x, y, z);
+	    		
+	    	} else if (list[0].equals("P")){
+	    		x = Float.valueOf(list[2]);
+	    		y = Float.valueOf(list[3]);
+	    		z = Float.valueOf(list[4]);
+	    		r = Integer.valueOf(list[5]);
+	    		g = Integer.valueOf(list[6]);
+	    		b = Integer.valueOf(list[7]);
+	    		Polygon object = readObject(list[1], x, y, z);
+	    		object.color.set(r, g, b);
+	    		if (object != null){
+	    			sector.objects.add(object);
+	    		}
+	    	} else if (list[0].equals("END")){
+	    		map.sectors.add(sector);
+	    	}
 		}
 		return map;
 	}

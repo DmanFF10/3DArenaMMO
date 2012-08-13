@@ -1,5 +1,7 @@
 package Server;
 
+import java.util.ArrayList;
+
 import org.lwjgl.util.vector.Vector3f;
 
 import GameLibrary.*;
@@ -39,14 +41,25 @@ public class Manager {
 			}
 			
 			public void identifyPackage(Thing data){
+				int id = data.getID();
+				String username = data.getUsername();
 				Command cmd;
 				switch(data.getType()){
-			    	case Consts.TYPE_LOGIN:
+			    	
+					case Consts.TYPE_LOGIN:
+			    		// add a new character to the game
 			    		game.addCharacter();
-			    		Login login = new Login(data.getID(), data.getUsername(), game.getCharacters(), game.map);
-			    		cmd = new Command(data.getID(), data.getUsername(), game.getCharacter(data.getID()));
-			    		sender.send(login, data.getID());
-			    		sender.broadcast(cmd);
+			    		// create and send the login object back to client
+			    		sender.send(new Login(id, username), id);
+			    		// send the mapstring to the client
+			    		sender.send(new Command(id, username, game.map.mapstring), id);
+			    		// send all the character objects to the client
+			    		ArrayList<Character> characters = game.getCharacters();
+			    		for(Character player : characters){
+			    			sender.send(new Command(id, username, player), id);
+			    		}
+			    		// broadcast to everyone that a new player has joined
+			    		sender.broadcast(new Command(id, username, game.getCharacter(id)));
 			    		break;
 			    		
 			    	case Consts.TYPE_MOVE:

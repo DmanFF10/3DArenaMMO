@@ -1,5 +1,7 @@
 package Client;
 
+import java.util.ArrayList;
+
 import org.lwjgl.util.vector.Vector3f;
 
 import Client.Callbacks.listenerCBs;
@@ -51,12 +53,11 @@ public class Manager {
 			
 			public void identifyPackage(Thing data){
 			    switch(data.getType()){
+			    	
 			    	case Consts.TYPE_LOGIN:
 			    		Login login = (Login)data;
 			    		game.setID(login.getID());
 			    		game.setName(login.getUsername());
-			    		game.setCharacters(login.getCharacters());
-			    		game.map = login.getMap();
 			    		view.setState(State.Connected);
 			    		break;
 			    	
@@ -70,10 +71,15 @@ public class Manager {
 			    		
 			    	case Consts.TYPE_NEW_PlAYER:
 			    		if(data.getID() < game.playerSize()){
-			    			game.setCharacter(data.getID(), ((Command)data).getCharacter());
+			    			game.setCharacter(data.getID(), (Character)((Command)data).getObject());
 			    		} else{
-			    			game.addCharacter(((Command)data).getCharacter());
+			    			game.addCharacter((Character)((Command)data).getObject());
 			    		}
+			    		break;
+			    	
+			    	case Consts.TYPE_MAP:
+			    		game.map = Loader.readMap((ArrayList<String>)((Command)data).getObject());
+			    		break;
 			    }
 			}
 		};
