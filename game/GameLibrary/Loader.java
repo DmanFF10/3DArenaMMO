@@ -11,12 +11,13 @@ public class Loader {
 	
 	public static Map readMap(String filename){
 		float x,y,z;
+		int r, g, b;
 		Sector sector = null;
 		Map map = new Map();
 	    
 		try {
 			String cwd = new java.io.File( "." ).getCanonicalPath();
-			BufferedReader in = new BufferedReader(new FileReader(cwd + "/game/Client/res/maps/" + filename + ".mp"));
+			BufferedReader in = new BufferedReader(new FileReader(cwd + "/game/res/maps/" + filename + ".mp"));
 		    String str;
 		    while ((str = in.readLine()) != null) {
 		    	String[] list = str.split(" ");
@@ -33,7 +34,11 @@ public class Loader {
 		    		x = Float.valueOf(list[2]);
 		    		y = Float.valueOf(list[3]);
 		    		z = Float.valueOf(list[4]);
+		    		r = Integer.valueOf(list[5]);
+		    		g = Integer.valueOf(list[6]);
+		    		b = Integer.valueOf(list[7]);
 		    		Polygon object = readObject(list[1], x, y, z);
+		    		object.color.set(r, g, b);
 		    		if (object != null){
 		    			sector.objects.add(object);
 		    		}
@@ -43,6 +48,7 @@ public class Loader {
 		    }
 		    in.close();
 		} catch(Exception e) {
+			e.printStackTrace();
 			return null;
 		}
 		return map;
@@ -54,7 +60,7 @@ public class Loader {
 	    
 		try {
 			String cwd = new java.io.File( "." ).getCanonicalPath();
-			BufferedReader in = new BufferedReader(new FileReader(cwd + "/game/Client/res/models/" + filename + ".obj"));
+			BufferedReader in = new BufferedReader(new FileReader(cwd + "/game/res/models/" + filename + ".obj"));
 		    String str;
 		    while ((str = in.readLine()) != null) {
 		    	String[] list = str.split(" ");
