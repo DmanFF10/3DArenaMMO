@@ -112,7 +112,9 @@ public class Visualizer extends Thread {
 				glTranslatef(ploc.x, ploc.y, ploc.z);
 				
 				
-				glColor3f((float)(object.color.getRed()*.01), (float)(object.color.getGreen()*.01), (float)(object.color.getBlue()*.01));
+				glColor3f((float)(object.color.getRed()*Consts.colorOffset), 
+						(float)(object.color.getGreen()*Consts.colorOffset), 
+						(float)(object.color.getBlue()*Consts.colorOffset));
 				// draws each object
 				glBegin(GL_POLYGON);
 				for(Face face : object.faces){

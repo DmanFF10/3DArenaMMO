@@ -22,4 +22,6 @@ public class Consts {
 	public static final int MOVE_BACKWORD_RIGHT = 1;
 	
 	public static final float UNITSIZE = 0.0002f;
+	
+	public static final float colorOffset = 0.00390625f;
 }
