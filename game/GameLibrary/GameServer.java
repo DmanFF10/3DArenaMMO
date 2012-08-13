@@ -12,7 +12,6 @@ import org.lwjgl.util.vector.Vector3f;
 public class GameServer {
 	
 	private ArrayList<Character> characters = new ArrayList<Character>();
-	private float unitsize = 0.0002f;
 	public Map map;
 	
 	public GameServer(String mapname){
@@ -40,35 +39,37 @@ public class GameServer {
 		int delta;
 		if (player.movement.x == Consts.MOVE_BACKWORD_RIGHT && movement.x == Consts.MOVE_STOP){
 			delta = (int) (time - player.timex);
-			float angle = player.object.rotation.x;
-			float speed = (delta*(player.speed * unitsize));
+			float angle = player.object.rotation.y;
+			float speed = (delta*(player.speed * Consts.UNITSIZE));
 			player.object.position.z += (float) Math.sin(Math.toRadians(angle)) * speed;
 			player.object.position.x += (float) Math.cos(Math.toRadians(angle)) * speed;
 		
 		} if(player.movement.x == Consts.MOVE_FORWORD_LEFT && movement.x == Consts.MOVE_STOP){
 			delta = (int) (time - player.timex);
-			float angle = player.object.rotation.x;
-			float speed = (delta*(player.speed * unitsize));
+			float angle = player.object.rotation.y;
+			float speed = (delta*(player.speed * Consts.UNITSIZE));
 			player.object.position.z -= (float) Math.sin(Math.toRadians(angle)) * speed;
 			player.object.position.x -= (float) Math.cos(Math.toRadians(angle)) * speed;
 		
 		} if(player.movement.z == Consts.MOVE_BACKWORD_RIGHT && movement.z == Consts.MOVE_STOP){
 			delta = (int) (time - player.timez);
-			float angle = player.object.rotation.x;
-			float speed = (delta*(player.speed * unitsize));
+			float angle = player.object.rotation.y;
+			float speed = (delta*(player.speed * Consts.UNITSIZE));
 			player.object.position.x += (float) Math.sin(Math.toRadians(angle)) * speed;
 			player.object.position.z += (float) Math.cos(Math.toRadians(angle)) * speed;
 		
 		} if(player.movement.z == Consts.MOVE_FORWORD_LEFT && movement.z == Consts.MOVE_STOP){
 			delta = (int) (time - player.timez);
-			float angle = player.object.rotation.x;
-			float speed = (delta*(player.speed * unitsize));
+			float angle = player.object.rotation.y;
+			float speed = (delta*(player.speed * Consts.UNITSIZE));
 			player.object.position.x -= (float) Math.sin(Math.toRadians(angle)) * speed;
 			player.object.position.z -= (float) Math.cos(Math.toRadians(angle)) * speed;
 		
-		} if (movement.x == Consts.MOVE_BACKWORD_RIGHT || movement.x == Consts.MOVE_FORWORD_LEFT){
+		} if (movement.x == Consts.MOVE_BACKWORD_RIGHT && player.movement.x == Consts.MOVE_STOP || 
+				movement.x == Consts.MOVE_FORWORD_LEFT && player.movement.x == Consts.MOVE_STOP){
 			player.timex = time;
-		} if (movement.z == Consts.MOVE_BACKWORD_RIGHT || movement.z == Consts.MOVE_FORWORD_LEFT){
+		} if (movement.z == Consts.MOVE_BACKWORD_RIGHT && player.movement.z == Consts.MOVE_STOP || 
+				movement.z == Consts.MOVE_FORWORD_LEFT && player.movement.z == Consts.MOVE_STOP){
 			player.timez = time;
 		}
 	}
