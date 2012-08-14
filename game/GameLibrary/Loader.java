@@ -10,9 +10,6 @@ public class Loader {
 	/* loads maps and blender objects into the program */
 	
 	public static Map readMap(String filename){
-		float x,y,z;
-		int r, g, b;
-		Sector sector = null;
 		Map map = new Map();
 	    
 		try {
@@ -21,6 +18,7 @@ public class Loader {
 		    String str;
 		    while ((str = in.readLine()) != null) {
 		    	map.mapstring.add(str);
+		    	/*
 		    	String[] list = str.split(" ");
 		    	if (list[0].equals("S")){
 		    		if (sector != null) {
@@ -46,6 +44,7 @@ public class Loader {
 		    	} else if (list[0].equals("END")){
 		    		map.sectors.add(sector);
 		    	}
+		    	*/
 		    }
 		    in.close();
 		} catch(Exception e) {
@@ -60,6 +59,7 @@ public class Loader {
 		int r, g, b;
 		Sector sector = null;
 		Map map = new Map();
+		map.mapstring = mapstring;
 		
 		for(String line : mapstring){
 			String[] list = line.split(" ");

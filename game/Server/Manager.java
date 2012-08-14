@@ -49,15 +49,17 @@ public class Manager {
 					case Consts.TYPE_LOGIN:
 			    		// add a new character to the game
 			    		game.addCharacter();
-			    		// create and send the login object back to client
-			    		sender.send(new Login(id, username), id);
 			    		// send the mapstring to the client
-			    		sender.send(new Command(id, username, game.map.mapstring), id);
+			    		for(String string : game.map.mapstring){
+			    			sender.send(new Command(id, username, string), id);
+			    		}
 			    		// send all the character objects to the client
 			    		ArrayList<Character> characters = game.getCharacters();
 			    		for(Character player : characters){
 			    			sender.send(new Command(id, username, player), id);
 			    		}
+			    		// create and send the login object back to client
+			    		sender.send(new Login(id, username), id);
 			    		// broadcast to everyone that a new player has joined
 			    		sender.broadcast(new Command(id, username, game.getCharacter(id)));
 			    		break;

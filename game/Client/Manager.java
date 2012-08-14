@@ -1,7 +1,5 @@
 package Client;
 
-import java.util.ArrayList;
-
 import org.lwjgl.util.vector.Vector3f;
 
 import Client.Callbacks.listenerCBs;
@@ -78,7 +76,11 @@ public class Manager {
 			    		break;
 			    	
 			    	case Consts.TYPE_MAP:
-			    		game.map = Loader.readMap((ArrayList<String>)((Command)data).getObject());
+			    		String newString = (String)((Command)data).getObject();
+			    		game.map.mapstring.add(newString);
+			    		if(newString.equals("END")){
+			    			game.map = Loader.readMap(game.map.mapstring);
+			    		}
 			    		break;
 			    }
 			}

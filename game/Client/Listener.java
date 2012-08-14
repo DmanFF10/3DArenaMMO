@@ -40,7 +40,7 @@ public class Listener extends Thread {
 		send(cbs.initConnect());
 		
 		// sets up package
-		byte[] data = new byte[100000];
+		byte[] data = new byte[2048];
 		DatagramPacket packet = new DatagramPacket(data, data.length);
 		
 		while(cbs.isLive()){

@@ -1,7 +1,6 @@
 package GameLibrary;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 
 import org.lwjgl.util.vector.Vector3f;
 
@@ -35,9 +34,9 @@ public class Command extends Thing implements Serializable {
 		this.rotation = rotation;
 	}
 	
-	public Command(int id, String username, ArrayList<String> map){
+	public Command(int id, String username, String mappart){
 		super(id, username, Consts.TYPE_MAP);
-		this.obj = map;
+		this.obj = mappart;
 	}
 	
 	public Object getObject(){

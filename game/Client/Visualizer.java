@@ -111,10 +111,10 @@ public class Visualizer extends Thread {
 				glTranslatef(sloc.x, sloc.y, sloc.z);
 				glTranslatef(ploc.x, ploc.y, ploc.z);
 				
-				
 				glColor3f((float)(object.color.getRed()*Consts.COLOR_OFFSET), 
 						(float)(object.color.getGreen()*Consts.COLOR_OFFSET), 
 						(float)(object.color.getBlue()*Consts.COLOR_OFFSET));
+				
 				// draws each object
 				glBegin(GL_POLYGON);
 				for(Face face : object.faces){
@@ -141,6 +141,10 @@ public class Visualizer extends Thread {
 			glTranslatef(trans.x, trans.y, trans.z);
 			glTranslatef(unit.object.position.x, unit.object.position.y, unit.object.position.z);
 			glRotatef(unit.object.rotation.y, 0f, 1f, 0f);
+			glColor3f((float)(unit.object.color.getRed()*Consts.COLOR_OFFSET), 
+					(float)(unit.object.color.getGreen()*Consts.COLOR_OFFSET), 
+					(float)(unit.object.color.getBlue()*Consts.COLOR_OFFSET));
+			
 			glBegin(GL_POLYGON);
 			for(Face face : unit.object.faces){
 				for (int i = 0; i<face.vertex.size(); i++){
@@ -166,7 +170,7 @@ public class Visualizer extends Thread {
 		// get game data
 		game = cbs.game();
 		// get map data
-		map = game.map;
+		map = cbs.game().map;
 		// get character data
 		player = game.getCharacter(game.getID());
 		// stores the direction the player is moving

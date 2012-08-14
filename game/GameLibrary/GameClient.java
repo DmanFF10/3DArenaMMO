@@ -12,7 +12,7 @@ public class GameClient {
 	private ArrayList<Character> characters = new ArrayList<Character>();
 	private int id;
 	private String name;
-	public Map map;
+	public Map map = new Map();
 	
 	public GameClient(String name){
 		id = Consts.DISCONNECTED;
