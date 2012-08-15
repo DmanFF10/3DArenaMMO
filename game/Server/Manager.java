@@ -50,9 +50,8 @@ public class Manager {
 			    		// add a new character to the game
 			    		game.addCharacter();
 			    		// send the mapstring to the client
-			    		for(String string : game.map.mapstring){
-			    			sender.send(new Command(id, username, string), id);
-			    		}
+			    		sender.send(new Command(id, username, game.map.mapstring), id);
+			    		
 			    		// send all the character objects to the client
 			    		ArrayList<Character> characters = game.getCharacters();
 			    		for(Character player : characters){
@@ -66,20 +65,19 @@ public class Manager {
 			    		
 			    	case Consts.TYPE_MOVE:
 			    		cmd = (Command)data;
-			    		Character player = game.getCharacter(cmd.getID());
+			    		Character player = game.getCharacter(id);
 			    		Vector3f movement = cmd.getMovement();
 			    		// set the players rotation
 			    		player.object.rotation = cmd.getRotation();
 			    		// update the players location
-			    		game.updateUnit(cmd.getID(), cmd.getTimeStamp(), movement);
+			    		game.updateUnit(id, cmd.getTimeStamp(), movement);
 			    		// set what direction the player is moving
 			    		player.movement = movement;
 			    		// update the characters changes
-			    		game.setCharacter(cmd.getID(), player);
-			    		// create new move command
-			    		Command newCmd = new Command(cmd.getID(), cmd.getUsername(), player.object.position, player.movement, cmd.getRotation());
+			    		game.setCharacter(id, player);
 			    		// give command to all users
-			    		sender.broadcast(newCmd);
+			    		sender.broadcast(new Command(id, username, 
+			    				player.object.position, player.movement, cmd.getRotation()));
 			    		break;
 				}
 			}

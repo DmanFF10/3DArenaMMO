@@ -22,7 +22,6 @@ public class Listener {
 	private ArrayList<Client> clients = new ArrayList<Client>();
 	
 	public Listener(int port, Manager.listenerCBs cbs){
-		// Callbacks
 		this.cbs = cbs;
 		Logger.log(Logger.INFO, "Starting Server");
 		
@@ -47,7 +46,6 @@ public class Listener {
 				server.receive(packet);
 			    // sends the packet to be processed
 				process(packet);
-			
 			} catch(IOException e){
 				Logger.log(Logger.ERROR, "failed to receive packet");
 			}

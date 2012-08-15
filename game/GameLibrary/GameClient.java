@@ -43,10 +43,6 @@ public class GameClient {
 		characters.set(id, unit);
 	}
 	
-	public void setCharacters(ArrayList<Character> characters){
-		this.characters = characters;
-	}
-	
 	public void addCharacter(Character unit){
 		characters.add(unit);
 	}
@@ -54,4 +50,38 @@ public class GameClient {
 	public int playerSize(){
 		return characters.size();
 	}
+	
+	public void updateUnits(int delta){
+		for(int i=0; i<playerSize(); i++){
+			Character unit = getCharacter(i);
+			if (unit.movement.z == Consts.MOVE_BACKWORD_RIGHT){
+				float angle = unit.object.rotation.y;
+				float movement = (delta*(unit.speed * Consts.UNITSIZE));
+				unit.object.position.x += (float) Math.sin(Math.toRadians(angle)) * movement;
+				unit.object.position.z += (float) Math.cos(Math.toRadians(angle)) * movement;
+			}
+
+			if (unit.movement.z == Consts.MOVE_FORWORD_LEFT) {
+				float angle = unit.object.rotation.y;
+				float movement = (delta*(unit.speed * Consts.UNITSIZE));
+				unit.object.position.x -= (float) Math.sin(Math.toRadians(angle)) * movement;
+				unit.object.position.z -= (float) Math.cos(Math.toRadians(angle)) * movement;
+			}
+
+			if (unit.movement.x == Consts.MOVE_FORWORD_LEFT){
+				float angle = unit.object.rotation.y;
+				float movement = (delta*(unit.speed * Consts.UNITSIZE));
+				unit.object.position.z -= (float) Math.sin(Math.toRadians(angle)) * movement;
+				unit.object.position.x -= (float) Math.cos(Math.toRadians(angle)) * movement;
+			}
+
+			if (unit.movement.x == Consts.MOVE_BACKWORD_RIGHT){
+				float angle = unit.object.rotation.y;
+				float movement = (delta*(unit.speed * Consts.UNITSIZE));
+				unit.object.position.z += (float) Math.sin(Math.toRadians(angle)) * movement;
+				unit.object.position.x += (float) Math.cos(Math.toRadians(angle)) * movement;
+			}
+			characters.set(i, unit);
+		}
+	} 
 }

@@ -1,5 +1,7 @@
 package Client;
 
+import java.util.ArrayList;
+
 import org.lwjgl.util.vector.Vector3f;
 
 import Client.Callbacks.listenerCBs;
@@ -49,6 +51,7 @@ public class Manager {
 				return data;
 			}
 			
+			@SuppressWarnings("unchecked")
 			public void identifyPackage(Thing data){
 			    switch(data.getType()){
 			    	
@@ -76,11 +79,7 @@ public class Manager {
 			    		break;
 			    	
 			    	case Consts.TYPE_MAP:
-			    		String newString = (String)((Command)data).getObject();
-			    		game.map.mapstring.add(newString);
-			    		if(newString.equals("END")){
-			    			game.map = Loader.readMap(game.map.mapstring);
-			    		}
+			    		game.map = Loader.readMap((ArrayList<String>)((Command)data).getObject());
 			    		break;
 			    }
 			}

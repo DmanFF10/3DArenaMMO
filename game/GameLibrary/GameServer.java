@@ -72,6 +72,7 @@ public class GameServer {
 				movement.z == Consts.MOVE_FORWORD_LEFT && player.movement.z == Consts.MOVE_STOP){
 			player.timez = time;
 		}
+		setCharacter(id, player);
 	}
 	
 }

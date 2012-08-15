@@ -1,5 +1,7 @@
 package Client;
 
+import java.awt.Font;
+
 import org.lwjgl.*;
 import static org.lwjgl.opengl.GL11.*;
 
@@ -7,6 +9,9 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.*;
 import org.lwjgl.util.vector.Vector3f;
+import org.newdawn.slick.SlickException;
+import org.newdawn.slick.UnicodeFont;
+import org.newdawn.slick.font.effects.ColorEffect;
 
 import GameLibrary.Consts;
 import GameLibrary.Face;
@@ -37,8 +42,8 @@ public class Visualizer extends Thread {
 	private int height = 600;
 
 	// time
-	private long lastFrame;
-	private int delta;
+	private long lastFrame = getTime();
+	private int delta, fps, fpscount;
 
 	// the viewing object
 	private Camera camera = new Camera();
@@ -49,6 +54,8 @@ public class Visualizer extends Thread {
 	//inputs
 	boolean keyUp, keyDown, keyLeft, keyRight, mouseLeft, changed;
 
+	// font
+	private UnicodeFont text;
 
 	public Visualizer(Callbacks.visualizerCBs	cbs){
 		// set callbacks
@@ -57,7 +64,7 @@ public class Visualizer extends Thread {
 
 	public void run() {
 		initOpenGL();
-		lastFrame = getTime();
+		initFonts();
 		while(!Display.isCloseRequested()){
 			// renders the frames
 			switch(state){
@@ -66,8 +73,9 @@ public class Visualizer extends Thread {
 				break;
 
 			case Connected:
-				inputs();
-				updateUnits();
+				updateVars();
+				getInputs();
+				game.updateUnits(delta);
 				updateCamera();
 				render();
 				break;
@@ -83,15 +91,32 @@ public class Visualizer extends Thread {
 		// clear the screen
 		glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 		glLoadIdentity();
-
-		// sector and polygon translation variables
-		Vector3f sloc;
-		Vector3f ploc;
+		
 		// view translation and rotations
 		Vector3f trans = new Vector3f(-camera.position.x, -camera.position.y, -camera.position.z);
 		Vector3f rotate = new Vector3f(-camera.rotation.x, -camera.rotation.y, -camera.rotation.z);
-		int playerSize = game.playerSize();
 
+		drawTerrain(trans, rotate);
+		drawPlayers(trans, rotate);
+		drawStatusText();
+		
+		// draws data to the screen
+		Display.update();
+		// sets the fps
+		Display.sync(60);
+	}
+	
+	private void drawStatusText(){
+		enable2D();
+		text.drawString(10, 15, "fps: " + fps);
+		text.drawString(10, 30, "X: " + player.object.position.x);
+		text.drawString(10, 45, "Y: " + player.object.position.y);
+		text.drawString(10, 60, "Z: " + player.object.position.z);
+		disable2D();
+	}
+	
+	private void drawTerrain(Vector3f trans, Vector3f rotate){
+		Vector3f sloc, ploc;
 		// loops through the sectors
 		for (int snum = 0; snum<map.sectors.size(); snum++){
 			// get each sectors objects and trans location 
@@ -107,10 +132,10 @@ public class Visualizer extends Thread {
 				// and draws the world
 				glRotatef(rotate.x, 1f, 0f, 0f);
 				glRotatef(rotate.y, 0f, 1f, 0f);
+				glRotatef(rotate.z, 0f, 0f, 1f);
 				glTranslatef(trans.x, trans.y, trans.z);
 				glTranslatef(sloc.x, sloc.y, sloc.z);
 				glTranslatef(ploc.x, ploc.y, ploc.z);
-				
 				glColor3f((float)(object.color.getRed()*Consts.COLOR_OFFSET), 
 						(float)(object.color.getGreen()*Consts.COLOR_OFFSET), 
 						(float)(object.color.getBlue()*Consts.COLOR_OFFSET));
@@ -126,18 +151,19 @@ public class Visualizer extends Thread {
 					}
 				}
 				glEnd();
-				
-				// set position to the origin
 				glLoadIdentity();
 			}
 
 		}
-
-		// loop through all the players and draw them
+	}
+	
+	private void drawPlayers(Vector3f trans, Vector3f rotate){
+		int playerSize = game.playerSize();	
 		for (int playerID = 0; playerID<playerSize; playerID++){
 			Character unit = game.getCharacter(playerID);
 			glRotatef(rotate.x, 1f, 0f, 0f);
 			glRotatef(rotate.y, 0f, 1f, 0f);
+			glRotatef(rotate.z, 0f, 0f, 1f);
 			glTranslatef(trans.x, trans.y, trans.z);
 			glTranslatef(unit.object.position.x, unit.object.position.y, unit.object.position.z);
 			glRotatef(unit.object.rotation.y, 0f, 1f, 0f);
@@ -157,42 +183,22 @@ public class Visualizer extends Thread {
 			glEnd();				
 			glLoadIdentity();
 		}
-
-		// draws data to the screen
-		Display.update();
-		// sets the fps
-		Display.sync(60);
 	}
 
-	private void inputs() {
-		// get time between frames
-		delta = getDelta();
-		// get game data
-		game = cbs.game();
-		// get map data
-		map = cbs.game().map;
-		// get character data
-		player = game.getCharacter(game.getID());
+	private void getInputs() {
 		// stores the direction the player is moving
 		Vector3f direction = new Vector3f();
-
 		// stores old move
-		boolean up = keyUp,
-				down = keyDown,
-				left = keyLeft,
-				right = keyRight,
+		boolean up = keyUp, down = keyDown,
+				left = keyLeft, right = keyRight,
 				mleft = mouseLeft;
 
 		// if key change send request to server
-		if (
-				(keyUp = Keyboard.isKeyDown(Keyboard.KEY_UP) || Keyboard.isKeyDown(Keyboard.KEY_W)) != up ||
-				(keyDown = Keyboard.isKeyDown(Keyboard.KEY_DOWN) || Keyboard.isKeyDown(Keyboard.KEY_S)) != down ||
-				(keyLeft = Keyboard.isKeyDown(Keyboard.KEY_LEFT) || Keyboard.isKeyDown(Keyboard.KEY_A)) != left ||
-				(keyRight = Keyboard.isKeyDown(Keyboard.KEY_RIGHT) || Keyboard.isKeyDown(Keyboard.KEY_D)) != right ||
-				(mouseLeft = Mouse.isButtonDown(0)) != mleft
-				) {
-			changed = true;
-		}
+		if ((keyUp = Keyboard.isKeyDown(Keyboard.KEY_UP) || Keyboard.isKeyDown(Keyboard.KEY_W)) != up ||
+			(keyDown = Keyboard.isKeyDown(Keyboard.KEY_DOWN) || Keyboard.isKeyDown(Keyboard.KEY_S)) != down ||
+			(keyLeft = Keyboard.isKeyDown(Keyboard.KEY_LEFT) || Keyboard.isKeyDown(Keyboard.KEY_A)) != left ||
+			(keyRight = Keyboard.isKeyDown(Keyboard.KEY_RIGHT) || Keyboard.isKeyDown(Keyboard.KEY_D)) != right ||
+			(mouseLeft = Mouse.isButtonDown(0)) != mleft) {  changed = true;  }
 
 		if (mouseLeft){
 			int x = -Mouse.getDX();
@@ -200,28 +206,16 @@ public class Visualizer extends Thread {
 			player.object.rotation.y += x;	
 		}
 		
-		if (keyDown){
-			direction.z = Consts.MOVE_BACKWORD_RIGHT;
-		}
-		if (keyUp) {
-			direction.z = Consts.MOVE_FORWORD_LEFT;
-		}
-		if (keyLeft){
-			direction.x = Consts.MOVE_FORWORD_LEFT;
-		}
-		if (keyRight){
-			direction.x = Consts.MOVE_BACKWORD_RIGHT;
-		}
+		if (keyDown) { direction.z = Consts.MOVE_BACKWORD_RIGHT; }
+		if (keyUp)   { direction.z = Consts.MOVE_FORWORD_LEFT;   }
+		if (keyLeft) { direction.x = Consts.MOVE_FORWORD_LEFT;   }
+		if (keyRight){ direction.x = Consts.MOVE_BACKWORD_RIGHT; }
 		
 		// sends the move request to server
 		if(changed){
 			cbs.requestMove(direction, player.object.rotation);
 			changed = false;
 		}
-	}
-
-	public void setState(State state){
-		this.state = state;
 	}
 
 	private long getTime(){
@@ -235,7 +229,10 @@ public class Visualizer extends Thread {
 		int delta = (int) (currentTime - lastFrame);
 		lastFrame = getTime();
 		return delta;
-
+	}
+	
+	public void setState(State state){
+		this.state = state;
 	}
 
 	private void initOpenGL(){
@@ -274,47 +271,15 @@ public class Visualizer extends Thread {
 		// quality of prospective calculations
 		glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 	}
-
-	private void updateUnits(){
-		float xValue, zValue;
-		for(int i=0; i<game.playerSize(); i++){
-			Character unit = game.getCharacter(i);
-			if (unit.movement.z == Consts.MOVE_BACKWORD_RIGHT){
-				float angle = unit.object.rotation.y;
-				float movement = (delta*(unit.speed * Consts.UNITSIZE));
-				xValue = (float) Math.sin(Math.toRadians(angle)) * movement;
-				zValue = (float) Math.cos(Math.toRadians(angle)) * movement;
-				unit.object.position.z += zValue;
-				unit.object.position.x += xValue;
-			}
-
-			if (unit.movement.z == Consts.MOVE_FORWORD_LEFT) {
-				float angle = unit.object.rotation.y;
-				float movement = (delta*(unit.speed * Consts.UNITSIZE));
-				xValue = (float) Math.sin(Math.toRadians(angle)) * movement;
-				zValue = (float) Math.cos(Math.toRadians(angle)) * movement;
-				unit.object.position.z -= zValue;
-				unit.object.position.x -= xValue;
-			}
-
-			if (unit.movement.x == Consts.MOVE_FORWORD_LEFT){
-				float angle = unit.object.rotation.y;
-				float movement = (delta*(unit.speed * Consts.UNITSIZE));
-				zValue = (float) Math.sin(Math.toRadians(angle)) * movement;
-				xValue = (float) Math.cos(Math.toRadians(angle)) * movement;
-				unit.object.position.z -= zValue;
-				unit.object.position.x -= xValue;
-			}
-
-			if (unit.movement.x == Consts.MOVE_BACKWORD_RIGHT){
-				float angle = unit.object.rotation.y;
-				float movement = (delta*(unit.speed * Consts.UNITSIZE));
-				zValue = (float) Math.sin(Math.toRadians(angle)) * movement;
-				xValue = (float) Math.cos(Math.toRadians(angle)) * movement;
-				unit.object.position.z += zValue;
-				unit.object.position.x += xValue;
-			}
-		}
+	
+	@SuppressWarnings("unchecked")
+	private void initFonts(){
+		try {
+			text = new UnicodeFont(new Font("Times New Roman", Font.PLAIN, 12));
+			text.addAsciiGlyphs();
+			text.getEffects().add(new ColorEffect(java.awt.Color.white));
+			text.loadGlyphs();
+		} catch (SlickException e) {}
 	}
 	
 	private void updateCamera(){
@@ -323,7 +288,47 @@ public class Visualizer extends Thread {
 		camera.position.y = position.y+3;
 		camera.position.x = (float) (Math.sin(Math.toRadians(camera.rotation.y))*10)+position.x;
 		camera.position.z = ((float) Math.cos(Math.toRadians(camera.rotation.y))*10)+position.z;
+	}
+	
+	private void updateVars(){
+		// get time between frames
+		delta = getDelta();
+		// get game data
+		game = cbs.game();
+		// get map data
+		map = game.map;
+		// get character data
+		player = game.getCharacter(game.getID());
 		
+		if (fpscount >= 1000){
+			fps = delta;
+			fpscount = 0;
+		}
+		fpscount += delta;
+	}
 
+	private void enable2D(){
+		glEnable(GL_TEXTURE_2D);
+		glDisable(GL_DEPTH_TEST);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		glOrtho(0, width, height, 0, 1, -1);
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+	}
+	
+	private void disable2D(){
+		glDisable(GL_TEXTURE_2D);
+		glEnable(GL_DEPTH_TEST);
+		glDisable(GL_BLEND);
+		
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		gluPerspective(45.0f,(float)width/(float)height,0.1f,100.0f);
+		glMatrixMode(GL11.GL_MODELVIEW);
+		glLoadIdentity();
 	}
 }
