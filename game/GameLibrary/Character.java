@@ -18,7 +18,7 @@ public class Character implements Serializable{
 	public Polygon object;
 	
 	public Character(float x, float y, float z){
-		object = Loader.readObject("test", x, y, z);
+		object = Loader.readObject("player", x, y, z);
 		object.color.setRed(100);
 	}
 	

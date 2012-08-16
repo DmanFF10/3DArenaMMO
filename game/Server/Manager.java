@@ -58,7 +58,7 @@ public class Manager {
 			    			sender.send(new Command(id, username, player), id);
 			    		}
 			    		// create and send the login object back to client
-			    		sender.send(new Login(id, username), id);
+			    		sender.send(new Command(username, id), id);
 			    		// broadcast to everyone that a new player has joined
 			    		sender.broadcast(new Command(id, username, game.getCharacter(id)));
 			    		break;
@@ -67,12 +67,12 @@ public class Manager {
 			    		cmd = (Command)data;
 			    		Character player = game.getCharacter(id);
 			    		Vector3f movement = cmd.getMovement();
-			    		// set the players rotation
-			    		player.object.rotation = cmd.getRotation();
 			    		// update the players location
-			    		game.updateUnit(id, cmd.getTimeStamp(), movement);
+			    		game.updateUnit(id, cmd.getTimeStamp(), movement, cmd.getRotation());
 			    		// set what direction the player is moving
 			    		player.movement = movement;
+			    		// set the players rotation
+			    		player.object.rotation = cmd.getRotation();
 			    		// update the characters changes
 			    		game.setCharacter(id, player);
 			    		// give command to all users

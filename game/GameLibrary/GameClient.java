@@ -54,32 +54,38 @@ public class GameClient {
 	public void updateUnits(int delta){
 		for(int i=0; i<playerSize(); i++){
 			Character unit = getCharacter(i);
-			if (unit.movement.z == Consts.MOVE_BACKWORD_RIGHT){
-				float angle = unit.object.rotation.y;
-				float movement = (delta*(unit.speed * Consts.UNITSIZE));
-				unit.object.position.x += (float) Math.sin(Math.toRadians(angle)) * movement;
-				unit.object.position.z += (float) Math.cos(Math.toRadians(angle)) * movement;
-			}
-
-			if (unit.movement.z == Consts.MOVE_FORWORD_LEFT) {
-				float angle = unit.object.rotation.y;
-				float movement = (delta*(unit.speed * Consts.UNITSIZE));
-				unit.object.position.x -= (float) Math.sin(Math.toRadians(angle)) * movement;
-				unit.object.position.z -= (float) Math.cos(Math.toRadians(angle)) * movement;
-			}
-
-			if (unit.movement.x == Consts.MOVE_FORWORD_LEFT){
-				float angle = unit.object.rotation.y;
-				float movement = (delta*(unit.speed * Consts.UNITSIZE));
-				unit.object.position.z -= (float) Math.sin(Math.toRadians(angle)) * movement;
-				unit.object.position.x -= (float) Math.cos(Math.toRadians(angle)) * movement;
-			}
-
 			if (unit.movement.x == Consts.MOVE_BACKWORD_RIGHT){
-				float angle = unit.object.rotation.y;
+				float angleX = unit.object.rotation.x;
+				float angleY = unit.object.rotation.y;
 				float movement = (delta*(unit.speed * Consts.UNITSIZE));
-				unit.object.position.z += (float) Math.sin(Math.toRadians(angle)) * movement;
-				unit.object.position.x += (float) Math.cos(Math.toRadians(angle)) * movement;
+				unit.object.position.x += ((float) Math.cos(Math.toRadians(angleY)) * movement); 
+				unit.object.position.y -= ((float) Math.sin(Math.toRadians(angleX)) * movement); 
+				unit.object.position.z -= ((float) Math.sin(Math.toRadians(angleY)) * movement);
+			}
+			if (unit.movement.x == Consts.MOVE_FORWORD_LEFT){
+				float angleX = unit.object.rotation.x;
+				float angleY = unit.object.rotation.y;
+				float movement = (delta*(unit.speed * Consts.UNITSIZE));
+				unit.object.position.x -= ((float) Math.cos(Math.toRadians(angleY)) * movement); 
+				unit.object.position.y += ((float) Math.sin(Math.toRadians(angleX)) * movement);
+				unit.object.position.z += ((float) Math.sin(Math.toRadians(angleY)) * movement);
+			}
+			if (unit.movement.z == Consts.MOVE_BACKWORD_RIGHT){
+				float angleX = unit.object.rotation.x;
+				float angleY = unit.object.rotation.y;
+				float movement = (delta*(unit.speed * Consts.UNITSIZE));
+				unit.object.position.x += ((float) Math.sin(Math.toRadians(angleY)) * movement); 
+				unit.object.position.y -= ((float) Math.sin(Math.toRadians(angleX)) * movement); 
+				unit.object.position.z += ((float) Math.cos(Math.toRadians(angleY)) * movement);
+				
+			}
+			if (unit.movement.z == Consts.MOVE_FORWORD_LEFT) {
+				float angleX = unit.object.rotation.x;
+				float angleY = unit.object.rotation.y;
+				float movement = (delta*(unit.speed * Consts.UNITSIZE));
+				unit.object.position.x -= ((float) Math.sin(Math.toRadians(angleY)) * movement); 
+				unit.object.position.y += ((float) Math.sin(Math.toRadians(angleX)) * movement);
+				unit.object.position.z -= ((float) Math.cos(Math.toRadians(angleY)) * movement);
 			}
 			characters.set(i, unit);
 		}

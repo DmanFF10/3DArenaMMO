@@ -34,42 +34,60 @@ public class GameServer {
 		characters.add(new Character(0f, 0f, 0f));
 	}
 	
-	public void updateUnit(int id, long time, Vector3f movement){
+	public void updateUnit(int id, long time, Vector3f movement, Vector3f rotation){
 		Character player = getCharacter(id);
 		int delta;
-		if (player.movement.x == Consts.MOVE_BACKWORD_RIGHT && movement.x == Consts.MOVE_STOP){
+		boolean rotated = false;
+		if (player.object.rotation.x != rotation.x || player.object.rotation.y != rotation.y){
+			rotated = true;
+		}
+		if (player.movement.x == Consts.MOVE_BACKWORD_RIGHT && movement.x == Consts.MOVE_STOP || 
+				rotated && player.movement.x == Consts.MOVE_BACKWORD_RIGHT){
 			delta = (int) (time - player.timex);
-			float angle = player.object.rotation.y;
+			float angleX = player.object.rotation.x;
+			float angleY = player.object.rotation.y;
 			float speed = (delta*(player.speed * Consts.UNITSIZE));
-			player.object.position.z += (float) Math.sin(Math.toRadians(angle)) * speed;
-			player.object.position.x += (float) Math.cos(Math.toRadians(angle)) * speed;
+			player.object.position.x += ((float) Math.cos(Math.toRadians(angleY)) * speed); 
+			player.object.position.y -= ((float) Math.sin(Math.toRadians(angleX)) * speed); 
+			player.object.position.z -= ((float) Math.sin(Math.toRadians(angleY)) * speed);
 		
-		} if(player.movement.x == Consts.MOVE_FORWORD_LEFT && movement.x == Consts.MOVE_STOP){
+		} if(player.movement.x == Consts.MOVE_FORWORD_LEFT && movement.x == Consts.MOVE_STOP ||
+				rotated && player.movement.x == Consts.MOVE_FORWORD_LEFT){
 			delta = (int) (time - player.timex);
-			float angle = player.object.rotation.y;
+			float angleX = player.object.rotation.x;
+			float angleY = player.object.rotation.y;
 			float speed = (delta*(player.speed * Consts.UNITSIZE));
-			player.object.position.z -= (float) Math.sin(Math.toRadians(angle)) * speed;
-			player.object.position.x -= (float) Math.cos(Math.toRadians(angle)) * speed;
+			player.object.position.x -= ((float) Math.cos(Math.toRadians(angleY)) * speed); 
+			player.object.position.y += ((float) Math.sin(Math.toRadians(angleX)) * speed); 
+			player.object.position.z += ((float) Math.sin(Math.toRadians(angleY)) * speed);
 		
-		} if(player.movement.z == Consts.MOVE_BACKWORD_RIGHT && movement.z == Consts.MOVE_STOP){
+		} if(player.movement.z == Consts.MOVE_BACKWORD_RIGHT && movement.z == Consts.MOVE_STOP ||
+				rotated && player.movement.z == Consts.MOVE_BACKWORD_RIGHT){
 			delta = (int) (time - player.timez);
-			float angle = player.object.rotation.y;
+			float angleX = player.object.rotation.x;
+			float angleY = player.object.rotation.y;
 			float speed = (delta*(player.speed * Consts.UNITSIZE));
-			player.object.position.x += (float) Math.sin(Math.toRadians(angle)) * speed;
-			player.object.position.z += (float) Math.cos(Math.toRadians(angle)) * speed;
+			player.object.position.x += ((float) Math.sin(Math.toRadians(angleY)) * speed); 
+			player.object.position.y -= ((float) Math.sin(Math.toRadians(angleX)) * speed); 
+			player.object.position.z += ((float) Math.cos(Math.toRadians(angleY)) * speed);
 		
-		} if(player.movement.z == Consts.MOVE_FORWORD_LEFT && movement.z == Consts.MOVE_STOP){
+		} if(player.movement.z == Consts.MOVE_FORWORD_LEFT && movement.z == Consts.MOVE_STOP ||
+				rotated && player.movement.z == Consts.MOVE_FORWORD_LEFT){
 			delta = (int) (time - player.timez);
-			float angle = player.object.rotation.y;
+			float angleX = player.object.rotation.x;
+			float angleY = player.object.rotation.y;
 			float speed = (delta*(player.speed * Consts.UNITSIZE));
-			player.object.position.x -= (float) Math.sin(Math.toRadians(angle)) * speed;
-			player.object.position.z -= (float) Math.cos(Math.toRadians(angle)) * speed;
+			player.object.position.x -= ((float) Math.sin(Math.toRadians(angleY)) * speed); 
+			player.object.position.y += ((float) Math.sin(Math.toRadians(angleX)) * speed); 
+			player.object.position.z -= ((float) Math.cos(Math.toRadians(angleY)) * speed);
 		
 		} if (movement.x == Consts.MOVE_BACKWORD_RIGHT && player.movement.x == Consts.MOVE_STOP || 
-				movement.x == Consts.MOVE_FORWORD_LEFT && player.movement.x == Consts.MOVE_STOP){
+				movement.x == Consts.MOVE_FORWORD_LEFT && player.movement.x == Consts.MOVE_STOP ||
+				rotated){
 			player.timex = time;
 		} if (movement.z == Consts.MOVE_BACKWORD_RIGHT && player.movement.z == Consts.MOVE_STOP || 
-				movement.z == Consts.MOVE_FORWORD_LEFT && player.movement.z == Consts.MOVE_STOP){
+				movement.z == Consts.MOVE_FORWORD_LEFT && player.movement.z == Consts.MOVE_STOP ||
+				rotated){
 			player.timez = time;
 		}
 		setCharacter(id, player);

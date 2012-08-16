@@ -23,6 +23,7 @@ public class Logger {
 			// if successful write a entry
 			Logger.filename = filename;
 			BufferedWriter out = new BufferedWriter(new FileWriter(filename+".log"));
+			System.out.println("[INFO] Started Logger");
 			out.write("[INFO] Started Logger");
 			out.newLine();
 			out.close();

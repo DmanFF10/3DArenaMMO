@@ -33,13 +33,11 @@ public class Visualizer extends Thread {
 		Disconnected, Connected
 	}
 	private State state = State.Disconnected;
+	
+	private Properties properties = new Properties();
 
 	// holds callbacks
 	private Callbacks.visualizerCBs cbs;
-
-	// display size
-	private int width = 800;
-	private int height = 600;
 
 	// time
 	private long lastFrame = getTime();
@@ -84,6 +82,7 @@ public class Visualizer extends Thread {
 		// clean up memory after closing display
 		// end the program
 		Display.destroy();
+		cbs.disconnect();
 		cbs.endLive();
 	}
 
@@ -112,6 +111,8 @@ public class Visualizer extends Thread {
 		text.drawString(10, 30, "X: " + player.object.position.x);
 		text.drawString(10, 45, "Y: " + player.object.position.y);
 		text.drawString(10, 60, "Z: " + player.object.position.z);
+		text.drawString(10, 75, "Angle X: " + player.object.rotation.x);
+		text.drawString(10, 90, "Angle Y: " + player.object.rotation.y);
 		disable2D();
 	}
 	
@@ -141,7 +142,7 @@ public class Visualizer extends Thread {
 						(float)(object.color.getBlue()*Consts.COLOR_OFFSET));
 				
 				// draws each object
-				glBegin(GL_POLYGON);
+				glBegin(GL_QUADS);
 				for(Face face : object.faces){
 					for (int i = 0; i<face.vertex.size(); i++){
 						Vector3f normal = object.normals.get(face.normal.get(i) -1);
@@ -171,7 +172,7 @@ public class Visualizer extends Thread {
 					(float)(unit.object.color.getGreen()*Consts.COLOR_OFFSET), 
 					(float)(unit.object.color.getBlue()*Consts.COLOR_OFFSET));
 			
-			glBegin(GL_POLYGON);
+			glBegin(GL_TRIANGLES);
 			for(Face face : unit.object.faces){
 				for (int i = 0; i<face.vertex.size(); i++){
 					Vector3f normal = unit.object.normals.get(face.normal.get(i) -1);
@@ -202,8 +203,21 @@ public class Visualizer extends Thread {
 
 		if (mouseLeft){
 			int x = -Mouse.getDX();
-			camera.rotation.y += x;
-			player.object.rotation.y += x;	
+			int y = -Mouse.getDY()/4;
+			if (camera.rotation.y >= 360){
+				camera.rotation.y = (camera.rotation.y - 360) + x;
+				player.object.rotation.y = (player.object.rotation.y - 360) + x;
+			} else if (camera.rotation.y <= -360){
+				camera.rotation.y = (camera.rotation.y + 360) + x;
+				player.object.rotation.y = (player.object.rotation.y + 360) + x;
+			}else{
+				camera.rotation.y += x;
+				player.object.rotation.y += x;	
+			}
+			if ((camera.rotation.x + y) < 90 && (camera.rotation.x + y) > -90){
+				camera.rotation.x += y;
+				player.object.rotation.x += y;
+			}
 		}
 		
 		if (keyDown) { direction.z = Consts.MOVE_BACKWORD_RIGHT; }
@@ -212,6 +226,7 @@ public class Visualizer extends Thread {
 		if (keyRight){ direction.x = Consts.MOVE_BACKWORD_RIGHT; }
 		
 		// sends the move request to server
+		//player.movement = direction;
 		if(changed){
 			cbs.requestMove(direction, player.object.rotation);
 			changed = false;
@@ -238,7 +253,7 @@ public class Visualizer extends Thread {
 	private void initOpenGL(){
 		try {
 			// create the rendering window
-			Display.setDisplayMode(new DisplayMode(width, height));
+			Display.setDisplayMode(new DisplayMode(properties.width, properties.height));
 			Display.setTitle("Arena Graphics Test");
 			Display.create();
 		} catch (LWJGLException e) {
@@ -252,7 +267,7 @@ public class Visualizer extends Thread {
 		glLoadIdentity();
 
 		// sets a simple prospective
-		gluPerspective(45.0f,(float)width/(float)height,0.1f,100.0f);
+		gluPerspective(45.0f,(float)properties.width/(float)properties.height,0.1f,100.0f);
 
 		// switch view back
 		glMatrixMode(GL11.GL_MODELVIEW);
@@ -285,8 +300,8 @@ public class Visualizer extends Thread {
 	private void updateCamera(){
 		// sets the camera at its position relative to the player object
 		Vector3f position = player.object.position;
-		camera.position.y = position.y+3;
-		camera.position.x = (float) (Math.sin(Math.toRadians(camera.rotation.y))*10)+position.x;
+		camera.position.x = ((float) Math.sin(Math.toRadians(camera.rotation.y))*10)+position.x;
+		camera.position.y = -((float) Math.sin(Math.toRadians(camera.rotation.x))*10)+position.y;
 		camera.position.z = ((float) Math.cos(Math.toRadians(camera.rotation.y))*10)+position.z;
 	}
 	
@@ -315,7 +330,7 @@ public class Visualizer extends Thread {
 		
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		glOrtho(0, width, height, 0, 1, -1);
+		glOrtho(0, properties.width, properties.height, 0, 1, -1);
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 	}
@@ -327,7 +342,7 @@ public class Visualizer extends Thread {
 		
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		gluPerspective(45.0f,(float)width/(float)height,0.1f,100.0f);
+		gluPerspective(45.0f,(float)properties.width/(float)properties.height,0.1f,100.0f);
 		glMatrixMode(GL11.GL_MODELVIEW);
 		glLoadIdentity();
 	}

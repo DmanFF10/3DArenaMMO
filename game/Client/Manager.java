@@ -28,11 +28,14 @@ public class Manager {
 		Logger.startLogger("Client");
 		
 		// Initialize game data container
+		Logger.log(Logger.INFO, "Setting up game");
 		game = new GameClient("GaugeII");
 		// initialize the game view
 		view = new Visualizer(vizCBs());
+		Logger.log(Logger.INFO, "Starting graphical front end");
 		view.start();
 		sender = new Listener(address, port, initCBs());
+		Logger.log(Logger.INFO, "Starting listener");
 		sender.start();
 	}
 	
@@ -47,23 +50,23 @@ public class Manager {
 			
 			// does initial connection operations
 			public Thing initConnect(){
-				Login data = new Login(game.getID(), game.getName());
+				Command data = new Command(game.getID(), game.getName());
 				return data;
 			}
 			
 			@SuppressWarnings("unchecked")
 			public void identifyPackage(Thing data){
-			    switch(data.getType()){
-			    	
+				Command cmd;
+				switch(data.getType()){
 			    	case Consts.TYPE_LOGIN:
-			    		Login login = (Login)data;
-			    		game.setID(login.getID());
-			    		game.setName(login.getUsername());
+			    		cmd = (Command)data;
+			    		game.setID(cmd.getID());
+			    		game.setName(cmd.getUsername());
 			    		view.setState(State.Connected);
 			    		break;
 			    	
 			    	case Consts.TYPE_MOVE:
-			    		Command cmd = (Command)data;
+			    		cmd = (Command)data;
 			    		Character player = game.getCharacter(cmd.getID());
 			    		player.movement = cmd.getMovement();
 			    		player.object.position = cmd.getPosition();
@@ -71,10 +74,11 @@ public class Manager {
 			    		break;
 			    		
 			    	case Consts.TYPE_NEW_PlAYER:
+			    		Character character = (Character)((Command)data).getObject();
 			    		if(data.getID() < game.playerSize()){
-			    			game.setCharacter(data.getID(), (Character)((Command)data).getObject());
+			    			game.setCharacter(data.getID(), character);
 			    		} else{
-			    			game.addCharacter((Character)((Command)data).getObject());
+			    			game.addCharacter(character);
 			    		}
 			    		break;
 			    	
@@ -97,8 +101,11 @@ public class Manager {
 			}
 			
 			public void requestMove(Vector3f direction, Vector3f rotation){
-				Command cmd = new Command(game.getID(), game.getName(), direction, rotation);
-				sender.send(cmd);
+				sender.send(new Command(game.getID(), game.getName(), direction, rotation));
+			}
+			
+			public void disconnect(){
+				sender.send(new Command(game.getID(), game.getName()));
 			}
 			
 			// returns the game object

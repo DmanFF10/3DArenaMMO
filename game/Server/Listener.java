@@ -5,9 +5,9 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.ArrayList;
 
+import GameLibrary.Command;
 import GameLibrary.Consts;
 import GameLibrary.Logger;
-import GameLibrary.Login;
 import GameLibrary.Serializer;
 import GameLibrary.Thing;
 
@@ -60,7 +60,7 @@ public class Listener {
 				// if not a connected user add to clients
 				clients.add(new Client(packet.getAddress(), packet.getPort()));
 				// creates a new object with the clients new id
-				Login login = new Login(clients.size()-1, object.getUsername());
+				Command login = new Command(object.getUsername(), clients.size()-1);
 				Logger.log(Logger.INFO, "User " + login.getUsername() + " has logged in with the id of: " + login.getID());
 				// sends package to be utilized by the game
 				cbs.identifyPackage(login);
