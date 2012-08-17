@@ -3,6 +3,7 @@ package Client;
 import java.awt.Font;
 
 import org.lwjgl.*;
+
 import static org.lwjgl.opengl.GL11.*;
 
 import org.lwjgl.input.Keyboard;
@@ -28,11 +29,6 @@ import static org.lwjgl.util.glu.GLU.gluPerspective;
  */
 
 public class Visualizer extends Thread {
-
-	public static enum State {
-		Disconnected, Connected
-	}
-	private State state = State.Disconnected;
 	
 	private Properties properties = new Properties();
 
@@ -65,7 +61,7 @@ public class Visualizer extends Thread {
 		initFonts();
 		while(!Display.isCloseRequested()){
 			// renders the frames
-			switch(state){
+			switch(cbs.state()){
 			case Disconnected:
 				Display.update();
 				break;
@@ -80,9 +76,12 @@ public class Visualizer extends Thread {
 			}
 		}
 		// clean up memory after closing display
-		// end the program
 		Display.destroy();
+		// disconnect from server
 		cbs.disconnect();
+		// write property changes to file
+		properties.writeProperties();
+		// close the program
 		cbs.endLive();
 	}
 
@@ -224,9 +223,18 @@ public class Visualizer extends Thread {
 		if (keyUp)   { direction.z = Consts.MOVE_FORWORD_LEFT;   }
 		if (keyLeft) { direction.x = Consts.MOVE_FORWORD_LEFT;   }
 		if (keyRight){ direction.x = Consts.MOVE_BACKWORD_RIGHT; }
+		if (Keyboard.isKeyDown(Keyboard.KEY_F4)){
+			try {
+				Display.setDisplayMode(toggleFullscreen(!properties.fullscreen));
+				gluPerspective(45.0f,(float)Display.getWidth()/(float)Display.getHeight(),0.1f,100.0f);
+			} catch (LWJGLException e) {
+				Logger.log(Logger.ERROR, "Failed to toggle fullscreen");
+			}
+			
+		}
 		
 		// sends the move request to server
-		//player.movement = direction;
+		player.movement = direction;
 		if(changed){
 			cbs.requestMove(direction, player.object.rotation);
 			changed = false;
@@ -246,14 +254,75 @@ public class Visualizer extends Thread {
 		return delta;
 	}
 	
-	public void setState(State state){
-		this.state = state;
+	
+	private void updateCamera(){
+		// sets the camera at its position relative to the player object
+		Vector3f position = player.object.position;
+		camera.position.x = ((float) Math.sin(Math.toRadians(camera.rotation.y))*10)+position.x;
+		camera.position.y = -((float) Math.sin(Math.toRadians(camera.rotation.x))*10)+position.y;
+		camera.position.z = ((float) Math.cos(Math.toRadians(camera.rotation.y))*10)+position.z;
+	}
+	
+	private void updateVars(){
+		// get time between frames
+		delta = getDelta();
+		// get game data
+		game = cbs.game();
+		// get map data
+		map = game.map;
+		// get character data
+		player = game.getCharacter(game.getID());
+		
+		if (fpscount >= 1000){
+			fps = 1000/delta;
+			fpscount = 0;
+		}
+		fpscount += delta;
 	}
 
+	private void enable2D(){
+		glEnable(GL_TEXTURE_2D);
+		glDisable(GL_DEPTH_TEST);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		glOrtho(0, properties.width, properties.height, 0, 1, -1);
+		glMatrixMode(GL_MODELVIEW);
+		glLoadIdentity();
+	}
+	
+	private void disable2D(){
+		glDisable(GL_TEXTURE_2D);
+		glEnable(GL_DEPTH_TEST);
+		glDisable(GL_BLEND);
+		
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		gluPerspective(45.0f,(float)Display.getWidth()/(float)Display.getHeight(),0.1f,100.0f);
+		glMatrixMode(GL11.GL_MODELVIEW);
+		glLoadIdentity();
+	}
+	
+	private DisplayMode toggleFullscreen(boolean fullscreen) throws LWJGLException{
+		properties.fullscreen = fullscreen;
+		if (fullscreen){
+			DisplayMode[] modes = Display.getAvailableDisplayModes();
+			Display.setFullscreen(true);
+			return modes[0];
+
+			
+		} else {
+			Display.setFullscreen(false);
+			return new DisplayMode(properties.width, properties.height);
+		}
+	}
+	
 	private void initOpenGL(){
 		try {
 			// create the rendering window
-			Display.setDisplayMode(new DisplayMode(properties.width, properties.height));
+			Display.setDisplayMode(toggleFullscreen(properties.fullscreen));
 			Display.setTitle("Arena Graphics Test");
 			Display.create();
 		} catch (LWJGLException e) {
@@ -267,7 +336,7 @@ public class Visualizer extends Thread {
 		glLoadIdentity();
 
 		// sets a simple prospective
-		gluPerspective(45.0f,(float)properties.width/(float)properties.height,0.1f,100.0f);
+		gluPerspective(45.0f,(float)Display.getWidth()/(float)Display.getHeight(),0.1f,100.0f);
 
 		// switch view back
 		glMatrixMode(GL11.GL_MODELVIEW);
@@ -295,55 +364,5 @@ public class Visualizer extends Thread {
 			text.getEffects().add(new ColorEffect(java.awt.Color.white));
 			text.loadGlyphs();
 		} catch (SlickException e) {}
-	}
-	
-	private void updateCamera(){
-		// sets the camera at its position relative to the player object
-		Vector3f position = player.object.position;
-		camera.position.x = ((float) Math.sin(Math.toRadians(camera.rotation.y))*10)+position.x;
-		camera.position.y = -((float) Math.sin(Math.toRadians(camera.rotation.x))*10)+position.y;
-		camera.position.z = ((float) Math.cos(Math.toRadians(camera.rotation.y))*10)+position.z;
-	}
-	
-	private void updateVars(){
-		// get time between frames
-		delta = getDelta();
-		// get game data
-		game = cbs.game();
-		// get map data
-		map = game.map;
-		// get character data
-		player = game.getCharacter(game.getID());
-		
-		if (fpscount >= 1000){
-			fps = delta;
-			fpscount = 0;
-		}
-		fpscount += delta;
-	}
-
-	private void enable2D(){
-		glEnable(GL_TEXTURE_2D);
-		glDisable(GL_DEPTH_TEST);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		glOrtho(0, properties.width, properties.height, 0, 1, -1);
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-	}
-	
-	private void disable2D(){
-		glDisable(GL_TEXTURE_2D);
-		glEnable(GL_DEPTH_TEST);
-		glDisable(GL_BLEND);
-		
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		gluPerspective(45.0f,(float)properties.width/(float)properties.height,0.1f,100.0f);
-		glMatrixMode(GL11.GL_MODELVIEW);
-		glLoadIdentity();
 	}
 }

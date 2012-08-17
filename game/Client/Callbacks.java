@@ -21,6 +21,7 @@ public class Callbacks {
 		void endLive();
 		void requestMove(Vector3f direction, Vector3f rotation);
 		void disconnect();
+		Manager.State state();
 		GameClient game();
 	}
 	

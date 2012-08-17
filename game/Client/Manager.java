@@ -6,7 +6,6 @@ import org.lwjgl.util.vector.Vector3f;
 
 import Client.Callbacks.listenerCBs;
 import Client.Callbacks.visualizerCBs;
-import Client.Visualizer.State;
 import GameLibrary.*;
 /*
  * manages the clients game
@@ -15,6 +14,13 @@ import GameLibrary.*;
 import GameLibrary.Character;
 
 public class Manager {
+	
+
+	public static enum State {
+		Disconnected, Connected
+	}
+	
+	private State state = State.Disconnected;
 	
 	private boolean live = true;
 	private int port = 1234;;
@@ -62,7 +68,7 @@ public class Manager {
 			    		cmd = (Command)data;
 			    		game.setID(cmd.getID());
 			    		game.setName(cmd.getUsername());
-			    		view.setState(State.Connected);
+			    		state = State.Connected;
 			    		break;
 			    	
 			    	case Consts.TYPE_MOVE:
@@ -106,6 +112,10 @@ public class Manager {
 			
 			public void disconnect(){
 				sender.send(new Command(game.getID(), game.getName()));
+			}
+			
+			public State state(){
+				return state;
 			}
 			
 			// returns the game object
