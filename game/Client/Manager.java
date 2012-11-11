@@ -17,10 +17,10 @@ public class Manager {
 	
 
 	public static enum State {
-		Disconnected, Connected
+		MainMenu, Game
 	}
 	
-	private State state = State.Disconnected;
+	private State state = State.MainMenu;
 	
 	private boolean live = true;
 	private int port = 1234;;
@@ -40,9 +40,9 @@ public class Manager {
 		view = new Visualizer(vizCBs());
 		Logger.log(Logger.INFO, "Starting graphical front end");
 		view.start();
-		sender = new Listener(address, port, initCBs());
-		Logger.log(Logger.INFO, "Starting listener");
-		sender.start();
+		//sender = new Listener(address, port, initCBs());
+		//Logger.log(Logger.INFO, "Starting listener");
+		//sender.start();
 	}
 	
 	private listenerCBs initCBs(){
@@ -54,6 +54,10 @@ public class Manager {
 				return live;
 			} 
 			
+			public boolean isConnected() {
+				return game.getID() != -1;
+			}
+			
 			// does initial connection operations
 			public Thing initConnect(){
 				Command data = new Command(game.getID(), game.getName());
@@ -62,18 +66,14 @@ public class Manager {
 			
 			@SuppressWarnings("unchecked")
 			public void identifyPackage(Thing data){
+				int id = data.getID();
+				String username = data.getUsername();
 				Command cmd;
 				switch(data.getType()){
-			    	case Consts.TYPE_LOGIN:
-			    		cmd = (Command)data;
-			    		game.setID(cmd.getID());
-			    		game.setName(cmd.getUsername());
-			    		state = State.Connected;
-			    		break;
 			    	
 			    	case Consts.TYPE_MOVE:
 			    		cmd = (Command)data;
-			    		Character player = game.getCharacter(cmd.getID());
+			    		Character player = game.getCharacter(id);
 			    		player.movement = cmd.getMovement();
 			    		player.object.position = cmd.getPosition();
 			    		player.object.rotation = cmd.getRotation();
@@ -81,15 +81,19 @@ public class Manager {
 			    		
 			    	case Consts.TYPE_NEW_PlAYER:
 			    		Character character = (Character)((Command)data).getObject();
-			    		if(data.getID() < game.playerSize()){
-			    			game.setCharacter(data.getID(), character);
-			    		} else{
+			    		if(id < game.playerSize()){
+			    			game.setCharacter(id, character);
+			    		} else {
 			    			game.addCharacter(character);
 			    		}
 			    		break;
 			    	
 			    	case Consts.TYPE_MAP:
 			    		game.map = Loader.readMap((ArrayList<String>)((Command)data).getObject());
+			    		cmd = (Command)data;
+			    		game.setID(id);
+			    		game.setName(username);
+			    		state = State.Game;
 			    		break;
 			    }
 			}
@@ -108,10 +112,6 @@ public class Manager {
 			
 			public void requestMove(Vector3f direction, Vector3f rotation){
 				sender.send(new Command(game.getID(), game.getName(), direction, rotation));
-			}
-			
-			public void disconnect(){
-				sender.send(new Command(game.getID(), game.getName()));
 			}
 			
 			public State state(){

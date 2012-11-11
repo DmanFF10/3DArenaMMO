@@ -49,7 +49,12 @@ public class Listener extends Thread {
 		    	client.receive(packet);
 		    	cbs.identifyPackage((Thing)Serializer.unpack(packet.getData()));
 		    
-		    }catch(Exception e){}
+		    }catch(Exception e){
+		    	// if failed to connect the first time resend
+		    	if (!cbs.isConnected()){
+		    		send(cbs.initConnect());
+		    	}
+		    }
 		}
 		Logger.log(Logger.INFO, "Ending listener operations"); 
 		

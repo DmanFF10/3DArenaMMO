@@ -12,6 +12,7 @@ public class Callbacks {
 	// callback for the listener class
 	public interface listenerCBs{
 		boolean isLive();
+		boolean isConnected();
 		Thing initConnect();
 		void identifyPackage(Thing data);
 	}
@@ -20,7 +21,6 @@ public class Callbacks {
 	public interface visualizerCBs{
 		void endLive();
 		void requestMove(Vector3f direction, Vector3f rotation);
-		void disconnect();
 		Manager.State state();
 		GameClient game();
 	}

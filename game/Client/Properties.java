@@ -27,7 +27,7 @@ public class Properties {
 	}
 	
 	private boolean loadProperties() {
-		Logger.log(Logger.INFO, "Atempting to read properties");
+		Logger.log(Logger.INFO, "Attempting to read properties");
 		try {
 			BufferedReader in = new BufferedReader(new FileReader("Properties.conf"));
 		

@@ -1,26 +1,15 @@
 package Client;
 
-import java.awt.Font;
-
 import org.lwjgl.*;
-
 import static org.lwjgl.opengl.GL11.*;
-
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.*;
 import org.lwjgl.util.vector.Vector3f;
-import org.newdawn.slick.SlickException;
-import org.newdawn.slick.UnicodeFont;
-import org.newdawn.slick.font.effects.ColorEffect;
 
-import GameLibrary.Consts;
-import GameLibrary.Face;
-import GameLibrary.GameClient;
-import GameLibrary.Logger;
-import GameLibrary.Map;
-import GameLibrary.Polygon;
-import GameLibrary.Sector;
+import de.matthiasmann.twl.GUI;
+
+import GameLibrary.*;
 import GameLibrary.Character;
 import static org.lwjgl.util.glu.GLU.gluPerspective;
 
@@ -29,17 +18,17 @@ import static org.lwjgl.util.glu.GLU.gluPerspective;
  */
 
 public class Visualizer extends Thread {
-	
+	// properties
 	private Properties properties = new Properties();
 
-	// holds callbacks
+	// callbacks
 	private Callbacks.visualizerCBs cbs;
 
 	// time
 	private long lastFrame = getTime();
 	private int delta, fps, fpscount;
 
-	// the viewing object
+	// primary game objects
 	private Camera camera = new Camera();
 	private Character player;
 	private GameClient game;
@@ -49,7 +38,7 @@ public class Visualizer extends Thread {
 	boolean keyUp, keyDown, keyLeft, keyRight, mouseLeft, changed;
 
 	// font
-	private UnicodeFont text;
+	private GUI gui;
 
 	public Visualizer(Callbacks.visualizerCBs	cbs){
 		// set callbacks
@@ -57,46 +46,54 @@ public class Visualizer extends Thread {
 	}
 
 	public void run() {
-		initOpenGL();
-		initFonts();
-		while(!Display.isCloseRequested()){
-			// renders the frames
-			switch(cbs.state()){
-			case Disconnected:
-				Display.update();
-				break;
-
-			case Connected:
-				updateVars();
-				getInputs();
-				game.updateUnits(delta);
-				updateCamera();
+		if(VisualizerFunctions.initOpenGL(properties.fullscreen, properties)){
+			gui = VisualizerFunctions.loadmenus(Consts.GUI_MAIN);
+			
+			// main render loop
+			while(!Display.isCloseRequested()){
 				render();
-				break;
 			}
+			
+			// clean up memory after closing display
+			Display.destroy();
+			// write property changes to file
+			properties.writeProperties();
+			// close the program
+			cbs.endLive();
 		}
-		// clean up memory after closing display
-		Display.destroy();
-		// disconnect from server
-		cbs.disconnect();
-		// write property changes to file
-		properties.writeProperties();
-		// close the program
-		cbs.endLive();
 	}
 
+	/* Drawing Mechanics */
 	private void render() {
+		
 		// clear the screen
 		glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 		glLoadIdentity();
 		
-		// view translation and rotations
-		Vector3f trans = new Vector3f(-camera.position.x, -camera.position.y, -camera.position.z);
-		Vector3f rotate = new Vector3f(-camera.rotation.x, -camera.rotation.y, -camera.rotation.z);
-
-		drawTerrain(trans, rotate);
-		drawPlayers(trans, rotate);
-		drawStatusText();
+		// processes acording to the state of the game
+		switch(cbs.state()){
+			case MainMenu:
+				// display menu
+				VisualizerFunctions.enable2D();
+				gui.update();
+				VisualizerFunctions.disable2D();
+				break;
+		
+			case Game:
+				updateVars();
+				processInputs();
+				game.updateUnits(delta);
+				updateCamera();
+				
+				// view translation and rotations
+				Vector3f trans = new Vector3f(-camera.position.x, -camera.position.y, -camera.position.z);
+				Vector3f rotate = new Vector3f(-camera.rotation.x, -camera.rotation.y, -camera.rotation.z);
+		
+				drawTerrain(trans, rotate);
+				drawPlayers(trans, rotate);
+				drawStatusText();
+				break;
+		}
 		
 		// draws data to the screen
 		Display.update();
@@ -105,14 +102,8 @@ public class Visualizer extends Thread {
 	}
 	
 	private void drawStatusText(){
-		enable2D();
-		text.drawString(10, 15, "fps: " + fps);
-		text.drawString(10, 30, "X: " + player.object.position.x);
-		text.drawString(10, 45, "Y: " + player.object.position.y);
-		text.drawString(10, 60, "Z: " + player.object.position.z);
-		text.drawString(10, 75, "Angle X: " + player.object.rotation.x);
-		text.drawString(10, 90, "Angle Y: " + player.object.rotation.y);
-		disable2D();
+		VisualizerFunctions.enable2D();
+		VisualizerFunctions.disable2D();
 	}
 	
 	private void drawTerrain(Vector3f trans, Vector3f rotate){
@@ -153,7 +144,6 @@ public class Visualizer extends Thread {
 				glEnd();
 				glLoadIdentity();
 			}
-
 		}
 	}
 	
@@ -184,8 +174,22 @@ public class Visualizer extends Thread {
 			glLoadIdentity();
 		}
 	}
+	
+	/* Updating and Calculations */
+	private long getTime(){
+		// return the current time
+		return (Sys.getTime() * 1000) / Sys.getTimerResolution();
+	}
 
-	private void getInputs() {
+	private int getDelta(){
+		// returns the time between frames (delta)
+		long currentTime = getTime();
+		int delta = (int) (currentTime - lastFrame);
+		lastFrame = getTime();
+		return delta;
+	}
+	
+	private void processInputs() {
 		// stores the direction the player is moving
 		Vector3f direction = new Vector3f();
 		// stores old move
@@ -225,7 +229,7 @@ public class Visualizer extends Thread {
 		if (keyRight){ direction.x = Consts.MOVE_BACKWORD_RIGHT; }
 		if (Keyboard.isKeyDown(Keyboard.KEY_F4)){
 			try {
-				Display.setDisplayMode(toggleFullscreen(!properties.fullscreen));
+				Display.setDisplayMode(VisualizerFunctions.toggleFullscreen(properties.fullscreen = !properties.fullscreen));
 				gluPerspective(45.0f,(float)Display.getWidth()/(float)Display.getHeight(),0.1f,100.0f);
 			} catch (LWJGLException e) {
 				Logger.log(Logger.ERROR, "Failed to toggle fullscreen");
@@ -240,20 +244,6 @@ public class Visualizer extends Thread {
 			changed = false;
 		}
 	}
-
-	private long getTime(){
-		// return the current time
-		return (Sys.getTime() * 1000) / Sys.getTimerResolution();
-	}
-
-	private int getDelta(){
-		// returns the time between frames (delta)
-		long currentTime = getTime();
-		int delta = (int) (currentTime - lastFrame);
-		lastFrame = getTime();
-		return delta;
-	}
-	
 	
 	private void updateCamera(){
 		// sets the camera at its position relative to the player object
@@ -264,6 +254,7 @@ public class Visualizer extends Thread {
 	}
 	
 	private void updateVars(){
+
 		// get time between frames
 		delta = getDelta();
 		// get game data
@@ -278,91 +269,5 @@ public class Visualizer extends Thread {
 			fpscount = 0;
 		}
 		fpscount += delta;
-	}
-
-	private void enable2D(){
-		glEnable(GL_TEXTURE_2D);
-		glDisable(GL_DEPTH_TEST);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		glOrtho(0, properties.width, properties.height, 0, 1, -1);
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-	}
-	
-	private void disable2D(){
-		glDisable(GL_TEXTURE_2D);
-		glEnable(GL_DEPTH_TEST);
-		glDisable(GL_BLEND);
-		
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		gluPerspective(45.0f,(float)Display.getWidth()/(float)Display.getHeight(),0.1f,100.0f);
-		glMatrixMode(GL11.GL_MODELVIEW);
-		glLoadIdentity();
-	}
-	
-	private DisplayMode toggleFullscreen(boolean fullscreen) throws LWJGLException{
-		properties.fullscreen = fullscreen;
-		if (fullscreen){
-			DisplayMode[] modes = Display.getAvailableDisplayModes();
-			Display.setFullscreen(true);
-			return modes[0];
-
-			
-		} else {
-			Display.setFullscreen(false);
-			return new DisplayMode(properties.width, properties.height);
-		}
-	}
-	
-	private void initOpenGL(){
-		try {
-			// create the rendering window
-			Display.setDisplayMode(toggleFullscreen(properties.fullscreen));
-			Display.setTitle("Arena Graphics Test");
-			Display.create();
-		} catch (LWJGLException e) {
-			// log error and end the program
-			Logger.log(Logger.ERROR, "Graphics window failed to load");
-			cbs.endLive();
-		}
-
-		// switch mode to set up projection type
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-
-		// sets a simple prospective
-		gluPerspective(45.0f,(float)Display.getWidth()/(float)Display.getHeight(),0.1f,100.0f);
-
-		// switch view back
-		glMatrixMode(GL11.GL_MODELVIEW);
-		glLoadIdentity();
-
-		// set smooth shading
-		glShadeModel(GL_SMOOTH);
-		// set clear color to black
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-
-		// depth testing
-		glClearDepth(1.0f);
-		glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LEQUAL);
-
-		// quality of prospective calculations
-		glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-	}
-	
-	@SuppressWarnings("unchecked")
-	private void initFonts(){
-		try {
-			text = new UnicodeFont(new Font("Times New Roman", Font.PLAIN, 12));
-			text.addAsciiGlyphs();
-			text.getEffects().add(new ColorEffect(java.awt.Color.white));
-			text.loadGlyphs();
-		} catch (SlickException e) {}
 	}
 }

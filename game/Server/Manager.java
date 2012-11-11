@@ -47,7 +47,7 @@ public class Manager {
 				switch(data.getType()){
 			    	
 					case Consts.TYPE_LOGIN:
-			    		// add a new character to the game
+						// add a new character to the game
 			    		game.addCharacter();
 			    		// send the mapstring to the client
 			    		sender.send(new Command(id, username, game.map.mapstring), id);
@@ -57,8 +57,7 @@ public class Manager {
 			    		for(Character player : characters){
 			    			sender.send(new Command(id, username, player), id);
 			    		}
-			    		// create and send the login object back to client
-			    		sender.send(new Command(username, id), id);
+			    		
 			    		// broadcast to everyone that a new player has joined
 			    		sender.broadcast(new Command(id, username, game.getCharacter(id)));
 			    		break;
@@ -77,7 +76,7 @@ public class Manager {
 			    		game.setCharacter(id, player);
 			    		// give command to all users
 			    		sender.broadcast(new Command(id, username, 
-			    				player.object.position, player.movement, cmd.getRotation()));
+			    		player.object.position, player.movement, cmd.getRotation()));
 			    		break;
 				}
 			}

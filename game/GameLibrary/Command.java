@@ -11,12 +11,8 @@ public class Command extends Thing implements Serializable {
 	private int messageType;
 	private Vector3f movement, rotation, position;
 	
-	public Command(String username, int id){
+	public Command(int id,  String username){
 		super(id, username, Consts.TYPE_LOGIN);
-	}
-	
-	public Command(int id, String username){
-		super(id, username, Consts.TYPE_LOGOUT);
 	}
 	
 	public Command(int id, String username, Character player){
