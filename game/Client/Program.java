@@ -1,5 +1,7 @@
 package Client;
 
+import Client.Manager.Manager;
+
 /*
  * starts the client
  */

@@ -4,6 +4,9 @@ import java.util.ArrayList;
 
 import org.lwjgl.util.vector.Vector3f;
 
+import GameLibrary.util.Consts;
+import GameLibrary.util.Loader;
+
 /*
  * were all the magic happens for the client
  * stores all the game values such as maps characters and more

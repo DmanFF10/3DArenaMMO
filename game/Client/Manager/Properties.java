@@ -1,11 +1,11 @@
-package Client;
+package Client.Manager;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 
-import GameLibrary.Logger;
+import GameLibrary.util.Logger;
 
 public class Properties {
 	

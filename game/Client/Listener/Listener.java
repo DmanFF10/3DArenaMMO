@@ -1,11 +1,13 @@
-package Client;
+package Client.Listener;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import GameLibrary.Logger;
-import GameLibrary.Serializer;
-import GameLibrary.Thing;
+
+import Client.Manager.Callbacks;
+import GameLibrary.util.Logger;
+import GameLibrary.util.Serializer;
+import GameLibrary.util.Thing;
 
 
 /*

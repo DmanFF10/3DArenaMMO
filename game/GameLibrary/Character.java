@@ -4,6 +4,9 @@ import java.io.Serializable;
 
 import org.lwjgl.util.vector.Vector3f;
 
+import GameLibrary.Graphics.Polygon;
+import GameLibrary.util.Loader;
+
 /*
  *  Character locations and stats
  */

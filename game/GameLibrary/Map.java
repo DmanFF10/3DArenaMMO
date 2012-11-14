@@ -4,6 +4,8 @@ package GameLibrary;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import GameLibrary.Graphics.Sector;
+
 /*
  * map holds the different sectors making up the map
  */

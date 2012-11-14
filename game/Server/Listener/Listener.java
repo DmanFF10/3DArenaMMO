@@ -1,4 +1,4 @@
-package Server;
+package Server.Listener;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -6,10 +6,12 @@ import java.net.DatagramSocket;
 import java.util.ArrayList;
 
 import GameLibrary.Command;
-import GameLibrary.Consts;
-import GameLibrary.Logger;
-import GameLibrary.Serializer;
-import GameLibrary.Thing;
+import GameLibrary.util.Consts;
+import GameLibrary.util.Logger;
+import GameLibrary.util.Serializer;
+import GameLibrary.util.Thing;
+import Server.Manager.Manager;
+import Server.Manager.Manager.listenerCBs;
 
 /*
  * listens for client activities

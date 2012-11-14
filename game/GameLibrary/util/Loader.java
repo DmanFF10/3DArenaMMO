@@ -1,10 +1,15 @@
-package GameLibrary;
+package GameLibrary.util;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
 
 import org.lwjgl.util.vector.Vector3f;
+
+import GameLibrary.Map;
+import GameLibrary.Graphics.Face;
+import GameLibrary.Graphics.Polygon;
+import GameLibrary.Graphics.Sector;
 
 public class Loader {
 	/* loads maps and blender objects into the program */

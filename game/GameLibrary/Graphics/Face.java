@@ -1,4 +1,4 @@
-package GameLibrary;
+package GameLibrary.Graphics;
 
 import java.io.Serializable;
 import java.util.ArrayList;

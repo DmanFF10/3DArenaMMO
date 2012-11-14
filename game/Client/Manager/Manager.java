@@ -1,17 +1,23 @@
-package Client;
+package Client.Manager;
 
 import java.util.ArrayList;
 
 import org.lwjgl.util.vector.Vector3f;
 
-import Client.Callbacks.listenerCBs;
-import Client.Callbacks.visualizerCBs;
+import Client.Listener.Listener;
+import Client.Manager.Callbacks.listenerCBs;
+import Client.Manager.Callbacks.visualizerCBs;
+import Client.Visualizer.Visualizer;
 import GameLibrary.*;
 /*
  * manages the clients game
  * sends and receives data to and from the listener
  */
 import GameLibrary.Character;
+import GameLibrary.util.Consts;
+import GameLibrary.util.Loader;
+import GameLibrary.util.Logger;
+import GameLibrary.util.Thing;
 
 public class Manager {
 	
@@ -23,7 +29,7 @@ public class Manager {
 	private State state = State.MainMenu;
 	
 	private boolean live = true;
-	private int port = 1234;;
+	private int port = 1234;
 	private String address = "127.0.0.1";
 	private GameClient game;
 	private Listener sender;
@@ -32,17 +38,22 @@ public class Manager {
 	public Manager(){
 		// stars logging
 		Logger.startLogger("Client");
-		
-		// Initialize game data container
-		Logger.log(Logger.INFO, "Setting up game");
-		game = new GameClient("GaugeII");
 		// initialize the game view
 		view = new Visualizer(vizCBs());
 		Logger.log(Logger.INFO, "Starting graphical front end");
 		view.start();
-		//sender = new Listener(address, port, initCBs());
-		//Logger.log(Logger.INFO, "Starting listener");
-		//sender.start();
+	}
+	
+	private void startListener(){
+		sender = new Listener(address, port, initCBs());
+		Logger.log(Logger.INFO, "Starting listener");
+		sender.start();
+	}
+	
+	private void startGame(String username){
+		// Initialize game data container
+		Logger.log(Logger.INFO, "Setting up game");
+		game = new GameClient(username);
 	}
 	
 	private listenerCBs initCBs(){
@@ -108,6 +119,12 @@ public class Manager {
 			// sets the state of the program to false
 			public void endLive(){
 				live = false;
+			}
+			
+			public void connect(String username, String serverAddress, int serverPort) {
+				startGame(username);
+				address = serverAddress;
+				port = serverPort;
 			}
 			
 			public void requestMove(Vector3f direction, Vector3f rotation){

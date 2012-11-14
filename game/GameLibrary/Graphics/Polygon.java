@@ -1,10 +1,11 @@
-package GameLibrary;
+package GameLibrary.Graphics;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 
 import org.lwjgl.util.Color;
 import org.lwjgl.util.vector.Vector3f;
+
 
 public class Polygon implements Serializable{
 	

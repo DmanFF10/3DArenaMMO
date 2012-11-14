@@ -5,6 +5,9 @@ import java.util.ArrayList;
 
 import org.lwjgl.util.vector.Vector3f;
 
+import GameLibrary.util.Consts;
+import GameLibrary.util.Thing;
+
 public class Command extends Thing implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private Object obj;

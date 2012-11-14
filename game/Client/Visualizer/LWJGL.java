@@ -1,28 +1,39 @@
-package Client;
+package Client.Visualizer;
 
-import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL11.GL_BLEND;
+import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
+import static org.lwjgl.opengl.GL11.GL_LEQUAL;
+import static org.lwjgl.opengl.GL11.GL_MODELVIEW;
+import static org.lwjgl.opengl.GL11.GL_NICEST;
+import static org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA;
+import static org.lwjgl.opengl.GL11.GL_PERSPECTIVE_CORRECTION_HINT;
+import static org.lwjgl.opengl.GL11.GL_PROJECTION;
+import static org.lwjgl.opengl.GL11.GL_SMOOTH;
+import static org.lwjgl.opengl.GL11.GL_SRC_ALPHA;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
+import static org.lwjgl.opengl.GL11.glBlendFunc;
+import static org.lwjgl.opengl.GL11.glClearColor;
+import static org.lwjgl.opengl.GL11.glClearDepth;
+import static org.lwjgl.opengl.GL11.glDepthFunc;
+import static org.lwjgl.opengl.GL11.glDisable;
+import static org.lwjgl.opengl.GL11.glEnable;
+import static org.lwjgl.opengl.GL11.glHint;
+import static org.lwjgl.opengl.GL11.glLoadIdentity;
+import static org.lwjgl.opengl.GL11.glMatrixMode;
+import static org.lwjgl.opengl.GL11.glOrtho;
+import static org.lwjgl.opengl.GL11.glShadeModel;
 import static org.lwjgl.util.glu.GLU.gluPerspective;
-
-import java.io.File;
-import java.io.IOException;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 
-import de.matthiasmann.twl.Button;
-import de.matthiasmann.twl.GUI;
-import de.matthiasmann.twl.Label;
-import de.matthiasmann.twl.Widget;
-import de.matthiasmann.twl.renderer.lwjgl.LWJGLRenderer;
-import de.matthiasmann.twl.theme.ThemeManager;
+import Client.Manager.Properties;
+import GameLibrary.util.Logger;
 
-import GameLibrary.Consts;
-import GameLibrary.Logger;
+public class LWJGL {
 
-public class VisualizerFunctions {
-	
 	private static Properties properties = null;
 	
 	public static boolean initOpenGL(boolean fullscreen, Properties props){
@@ -103,48 +114,4 @@ public class VisualizerFunctions {
 		glLoadIdentity();
 	}
 	
-	public static LWJGLRenderer initGUIRenderer(){
-		LWJGLRenderer renderer;
-		try{
-			renderer = new LWJGLRenderer();
-		} catch(Exception e){
-			Logger.log(Logger.ERROR, "failed to load LWJGLRenderer for TWL");
-			return null;
-		}
-		return renderer;
-	}
-	
-	private static GUI initTWL(Widget w){
-		return new GUI(w, initGUIRenderer());
-	}
-	
-	public static GUI loadmenus(int menu){
-		GUI gui = null;
-		try{
-			switch(menu){
-		    case Consts.GUI_MAIN:
-		    	gui = initTWL(mainMenu());		    	
-		    	gui.applyTheme(ThemeManager.createThemeManager(
-		    			(new File("./game/res/menus/mainTemplate.xml")).toURI().toURL(), initGUIRenderer()));
-		    	break;
-		    }
-		} catch(IOException e){
-			Logger.log(Logger.ERROR, "failed to load gui theme");
-		}
-		return gui;
-	}
-	
-	private static Widget mainMenu() {
-		Widget w = new Widget();
-		Button button = new Button("Connect");
-		Label label = new Label("InputName");
-		button.setTheme("button");
-		button.setPosition(70, 70);
-		button.setSize(65, 35);
-		label.setTheme("label");
-		label.setPosition(50, 50);
-		w.add(label);
-		w.add(button);
-		return w;
-	}
 }

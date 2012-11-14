@@ -1,4 +1,4 @@
-package Client;
+package Client.Visualizer;
 
 import org.lwjgl.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -9,8 +9,16 @@ import org.lwjgl.util.vector.Vector3f;
 
 import de.matthiasmann.twl.GUI;
 
+import Client.Manager.Callbacks;
+import Client.Manager.Properties;
+import Client.Manager.Callbacks.visualizerCBs;
 import GameLibrary.*;
 import GameLibrary.Character;
+import GameLibrary.Graphics.Face;
+import GameLibrary.Graphics.Polygon;
+import GameLibrary.Graphics.Sector;
+import GameLibrary.util.Consts;
+import GameLibrary.util.Logger;
 import static org.lwjgl.util.glu.GLU.gluPerspective;
 
 /*
@@ -46,8 +54,8 @@ public class Visualizer extends Thread {
 	}
 
 	public void run() {
-		if(VisualizerFunctions.initOpenGL(properties.fullscreen, properties)){
-			gui = VisualizerFunctions.loadmenus(Consts.GUI_MAIN);
+		if(LWJGL.initOpenGL(properties.fullscreen, properties)){
+			gui = UserInterface.loadmenus(Consts.GUI_MAIN);
 			
 			// main render loop
 			while(!Display.isCloseRequested()){
@@ -74,9 +82,9 @@ public class Visualizer extends Thread {
 		switch(cbs.state()){
 			case MainMenu:
 				// display menu
-				VisualizerFunctions.enable2D();
+				LWJGL.enable2D();
 				gui.update();
-				VisualizerFunctions.disable2D();
+				LWJGL.disable2D();
 				break;
 		
 			case Game:
@@ -91,7 +99,6 @@ public class Visualizer extends Thread {
 		
 				drawTerrain(trans, rotate);
 				drawPlayers(trans, rotate);
-				drawStatusText();
 				break;
 		}
 		
@@ -99,11 +106,6 @@ public class Visualizer extends Thread {
 		Display.update();
 		// sets the fps
 		Display.sync(60);
-	}
-	
-	private void drawStatusText(){
-		VisualizerFunctions.enable2D();
-		VisualizerFunctions.disable2D();
 	}
 	
 	private void drawTerrain(Vector3f trans, Vector3f rotate){
@@ -229,7 +231,7 @@ public class Visualizer extends Thread {
 		if (keyRight){ direction.x = Consts.MOVE_BACKWORD_RIGHT; }
 		if (Keyboard.isKeyDown(Keyboard.KEY_F4)){
 			try {
-				Display.setDisplayMode(VisualizerFunctions.toggleFullscreen(properties.fullscreen = !properties.fullscreen));
+				Display.setDisplayMode(LWJGL.toggleFullscreen(properties.fullscreen = !properties.fullscreen));
 				gluPerspective(45.0f,(float)Display.getWidth()/(float)Display.getHeight(),0.1f,100.0f);
 			} catch (LWJGLException e) {
 				Logger.log(Logger.ERROR, "Failed to toggle fullscreen");

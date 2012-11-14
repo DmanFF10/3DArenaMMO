@@ -1,4 +1,4 @@
-package Server;
+package Server.Manager;
 
 import java.util.ArrayList;
 
@@ -6,6 +6,10 @@ import org.lwjgl.util.vector.Vector3f;
 
 import GameLibrary.*;
 import GameLibrary.Character;
+import GameLibrary.util.Consts;
+import GameLibrary.util.Logger;
+import GameLibrary.util.Thing;
+import Server.Listener.Listener;
 
 public class Manager {
 	/*

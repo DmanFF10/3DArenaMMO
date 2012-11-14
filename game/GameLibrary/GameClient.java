@@ -2,6 +2,8 @@ package GameLibrary;
 
 import java.util.ArrayList;
 
+import GameLibrary.util.Consts;
+
 /*
  * were all the magic happens for the client
  * stores all the game values such as maps characters and more

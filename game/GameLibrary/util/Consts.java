@@ -1,4 +1,4 @@
-package GameLibrary;
+package GameLibrary.util;
 
 /*
  * constants for the game
