@@ -3,11 +3,10 @@ package Client.Listener;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.util.ArrayList;
 
 import Client.Manager.Callbacks;
 import GameLibrary.util.Logger;
-import GameLibrary.util.Serializer;
-import GameLibrary.util.Thing;
 
 
 /*
@@ -33,42 +32,40 @@ public class Listener extends Thread {
 			client = new DatagramSocket();
 			client.setSoTimeout(2000);
 			this.address = InetAddress.getByName(address);
-			
-		} catch (Exception e) {}
+		} catch (Exception e) {
+			Logger.log(Logger.ERROR, "failed to initalize listener");
+		}
 	}
 
 	public void run(){
-		// send connection request
-		send(cbs.initConnect());
-		
 		// sets up package
-		byte[] data = new byte[100000];
+		byte[] data = new byte[512];
 		DatagramPacket packet = new DatagramPacket(data, data.length);
 		
 		while(cbs.isLive()){
 		    try{
 		    	// receives package and process
 		    	client.receive(packet);
-		    	cbs.identifyPackage((Thing)Serializer.unpack(packet.getData()));
+		    	cbs.process(new String(packet.getData()));
+		    	data = new byte[512];
+		    	packet = new DatagramPacket(data, data.length);
+		    	
+		    }catch(Exception e){}
 		    
-		    }catch(Exception e){
-		    	// if failed to connect the first time resend
-		    	if (!cbs.isConnected()){
-		    		send(cbs.initConnect());
-		    	}
-		    }
 		}
 		Logger.log(Logger.INFO, "Ending listener operations"); 
 		
 	}
 	
-	public void send(Thing object){
+	public void send(ArrayList<String> info){
 		try{
-			byte[] data = Serializer.pack(object);
-			DatagramPacket packet = new DatagramPacket(data, data.length, address, port);
-			client.send(packet);		
+			for(String value : info){
+				byte[] data = value.getBytes();
+				DatagramPacket packet = new DatagramPacket(data, data.length, address, port);
+				client.send(packet);	
+			}	
 		} catch(Exception e){
-			Logger.log(Logger.ERROR, "Failed to send packet");
+			Logger.log(Logger.WORNING, "Packet Interuption");
 		}
 	}
 }

@@ -99,7 +99,7 @@ public class UserInterface {
 		
 		loginButton.addCallback(new Runnable() {
             public void run() {
-                callbacks.connect(nameTextBox.getText());
+                callbacks.connect(nameTextBox.getText(), passTextBox.getText());
             }
         });
 

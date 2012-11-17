@@ -13,6 +13,8 @@ public class Consts {
 	public static final int TYPE_MESSAGE = 3;
 	public static final int TYPE_NEW_PlAYER = 4;
 	public static final int TYPE_MAP = 5;
+	public static final int TYPE_LOGIN_PASS = 6;
+	public static final int TYPE_LOGIN_FAIL = 7;
 	
 	public static final int MESSAGE_ONE = 0;
 	public static final int MESSAGE_MANY = 1;
@@ -25,6 +27,10 @@ public class Consts {
 	public static final int GUI_MAIN = 0;
 	public static final int GUI_INGAME = 1;
 	public static final int GUI_INGAME_DEBUG = 2;
+	
+	public static final String PACK_BEGIN = "BEGIN";
+	public static final String PACK_END = "END";
+	public static final String PACK_SPLITER = "~";
 	
 	public static final float UNITSIZE = 0.0002f;
 	public static final float COLOR_OFFSET = 0.00390625f;

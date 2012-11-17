@@ -5,28 +5,19 @@ import java.util.ArrayList;
 import org.lwjgl.util.vector.Vector3f;
 
 import Client.Listener.Listener;
-import Client.Manager.Callbacks.listenerCBs;
-import Client.Manager.Callbacks.visualizerCBs;
+import Client.Manager.Callbacks.*;
 import Client.Visualizer.Visualizer;
 import GameLibrary.*;
-/*
- * manages the clients game
- * sends and receives data to and from the listener
- */
-import GameLibrary.Character;
-import GameLibrary.util.Consts;
-import GameLibrary.util.Loader;
-import GameLibrary.util.Logger;
-import GameLibrary.util.Thing;
+import GameLibrary.util.*;
 
 public class Manager {
 	
 
 	public static enum State {
-		MainMenu, Game
+		Login, Lobby, Game
 	}
 	
-	private State state = State.MainMenu;
+	private State state = State.Login;
 	
 	private boolean live = true;
 	private int port = 1234;
@@ -34,11 +25,14 @@ public class Manager {
 	private GameClient game;
 	private Listener sender;
 	private Visualizer view;
+	private ArrayList<String> command = new ArrayList<String>();
 	
 	public Manager(){
 		// stars logging
 		Logger.startLogger("Client");
 		startVisualizer();
+		startGame();
+		startListener();
 	}
 	
 	public void startVisualizer(){
@@ -54,10 +48,13 @@ public class Manager {
 		sender.start();
 	}
 	
-	private void startGame(String username){
+	private void startGame(){
 		// Initialize game data container
 		Logger.log(Logger.INFO, "Setting up game");
-		game = new GameClient(username);
+		game = new GameClient();
+	}
+	
+	public void processCommand(Command data){
 	}
 	
 	private listenerCBs initCBs(){
@@ -73,44 +70,16 @@ public class Manager {
 				return game.getID() != -1;
 			}
 			
-			// does initial connection operations
-			public Thing initConnect(){
-				Command data = new Command(game.getID(), game.getName());
-				return data;
-			}
-			
-			@SuppressWarnings("unchecked")
-			public void identifyPackage(Thing data){
-				int id = data.getID();
-				String username = data.getUsername();
-				Command cmd;
-				switch(data.getType()){
-			    	
-			    	case Consts.TYPE_MOVE:
-			    		cmd = (Command)data;
-			    		Character player = game.getCharacter(id);
-			    		player.movement = cmd.getMovement();
-			    		player.object.position = cmd.getPosition();
-			    		player.object.rotation = cmd.getRotation();
-			    		break;
-			    		
-			    	case Consts.TYPE_NEW_PlAYER:
-			    		Character character = (Character)((Command)data).getObject();
-			    		if(id < game.playerSize()){
-			    			game.setCharacter(id, character);
-			    		} else {
-			    			game.addCharacter(character);
-			    		}
-			    		break;
-			    	
-			    	case Consts.TYPE_MAP:
-			    		game.map = Loader.readMap((ArrayList<String>)((Command)data).getObject());
-			    		cmd = (Command)data;
-			    		game.setID(id);
-			    		game.setName(username);
-			    		state = State.Game;
-			    		break;
-			    }
+			public void process(String data){
+				Logger.log(Logger.DEBUG, data);
+				if (Packer.isEnd(data)){
+					Logger.log(Logger.DEBUG, "passed");
+					command.add(data);
+					processCommand(Packer.unpack(command));
+					command = new ArrayList<String>();
+				} else {
+					command.add(data);
+				}
 			}
 		};
 	}
@@ -125,12 +94,13 @@ public class Manager {
 				live = false;
 			}
 			
-			public void connect(String username) {
-				startGame(username);
+			public void connect(String username, String password) {
+				game.setName(username);
+				Command login = new Command(game.getID(), username, password);
+				sender.send(Packer.pack(login));
 			}
 			
 			public void requestMove(Vector3f direction, Vector3f rotation){
-				sender.send(new Command(game.getID(), game.getName(), direction, rotation));
 			}
 			
 			public State state(){

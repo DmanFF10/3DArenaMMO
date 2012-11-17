@@ -1,14 +1,11 @@
 package Server.Manager;
 
-import java.util.ArrayList;
-
-import org.lwjgl.util.vector.Vector3f;
-
+import java.net.DatagramPacket;
 import GameLibrary.*;
-import GameLibrary.Character;
 import GameLibrary.util.Consts;
 import GameLibrary.util.Logger;
-import GameLibrary.util.Thing;
+import GameLibrary.util.Packer;
+import Server.Listener.Client;
 import Server.Listener.Listener;
 
 public class Manager {
@@ -19,7 +16,7 @@ public class Manager {
 	// callback declaration
 	public interface listenerCBs{
 		boolean isLive();
-		void identifyPackage(Thing data);
+		void process(DatagramPacket p);
 	}
 	
 	// management variables
@@ -36,6 +33,18 @@ public class Manager {
 		sender = new Listener(port, initCBs());
 		sender.Start();
 	}
+	
+	public void processCommand(Command data){
+		switch(data.getCommandType()){
+	    	
+			case Consts.TYPE_LOGIN_PASS:
+				// add a new character to the game
+	    		game.addCharacter();
+	    		// broadcast to everyone that a new player has joined
+	    		sender.broadcast(Packer.pack(data));
+	    		break;
+		}
+	}
 		
 	private listenerCBs initCBs(){
 		 return new listenerCBs() {
@@ -44,45 +53,25 @@ public class Manager {
 				return live;
 			}
 			
-			public void identifyPackage(Thing data){
-				int id = data.getID();
-				String username = data.getUsername();
-				Command cmd;
-				switch(data.getType()){
-			    	
-					case Consts.TYPE_LOGIN:
-						// add a new character to the game
-			    		game.addCharacter();
-			    		// send the mapstring to the client
-			    		sender.send(new Command(id, username, game.map.mapstring), id);
-			    		
-			    		// send all the character objects to the client
-			    		ArrayList<Character> characters = game.getCharacters();
-			    		for(Character player : characters){
-			    			sender.send(new Command(id, username, player), id);
-			    		}
-			    		
-			    		// broadcast to everyone that a new player has joined
-			    		sender.broadcast(new Command(id, username, game.getCharacter(id)));
-			    		break;
-			    		
-			    	case Consts.TYPE_MOVE:
-			    		cmd = (Command)data;
-			    		Character player = game.getCharacter(id);
-			    		Vector3f movement = cmd.getMovement();
-			    		// update the players location
-			    		game.updateUnit(id, cmd.getTimeStamp(), movement, cmd.getRotation());
-			    		// set what direction the player is moving
-			    		player.movement = movement;
-			    		// set the players rotation
-			    		player.object.rotation = cmd.getRotation();
-			    		// update the characters changes
-			    		game.setCharacter(id, player);
-			    		// give command to all users
-			    		sender.broadcast(new Command(id, username, 
-			    		player.object.position, player.movement, cmd.getRotation()));
-			    		break;
-				}
+			public void process(DatagramPacket data){
+				String[] values = new String(data.getData()).split(Consts.PACK_SPLITER);
+				try{
+					int id = Integer.parseInt(values[0]);
+					if (id == Consts.DISCONNECTED){
+						String username = values[1];
+						//TODO: make the password usefull
+						String password = values[2];
+						// if not a connected user add to clients
+						sender.clients.add(new Client(data.getAddress(), data.getPort()));
+						// creates a new object with the clients new id
+						Command cmd = new Command(sender.clients.size()-1, username);
+						Logger.log(Logger.INFO, "User " + username + " has logged in with the id of: " + cmd.getID());
+						// sends package to be utilized by the game
+						processCommand(cmd);
+					}else{
+						
+					}
+				} catch(Exception e){}
 			}
 		};
 	}

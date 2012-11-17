@@ -16,6 +16,11 @@ public class GameClient {
 	private String name;
 	public Map map = new Map();
 	
+	public GameClient(){
+		id = Consts.DISCONNECTED;
+		this.name = "";
+	}
+	
 	public GameClient(String name){
 		id = Consts.DISCONNECTED;
 		this.name = name;

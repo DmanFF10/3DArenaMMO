@@ -3,7 +3,6 @@ package Client.Manager;
 import org.lwjgl.util.vector.Vector3f;
 
 import GameLibrary.GameClient;
-import GameLibrary.util.Thing;
 
  /* callbacks for the client to reference important game data */
 
@@ -13,14 +12,13 @@ public class Callbacks {
 	public interface listenerCBs{
 		boolean isLive();
 		boolean isConnected();
-		Thing initConnect();
-		void identifyPackage(Thing data);
+		void process(String s);
 	}
 	
 	// callback for the visualizer class
 	public interface visualizerCBs{
 		void endLive();
-		void connect(String name);
+		void connect(String name, String password);
 		void requestMove(Vector3f direction, Vector3f rotation);
 		Manager.State state();
 		GameClient game();

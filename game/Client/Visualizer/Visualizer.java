@@ -81,7 +81,7 @@ public class Visualizer extends Thread {
 		
 		// processes according to the state of the game
 		switch(cbs.state()){
-			case MainMenu:
+			case Login:
 				// display menu
 				LWJGL.enable2D();
 				gui.update();
