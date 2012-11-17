@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import org.lwjgl.opengl.Display;
 
+import Client.Manager.Callbacks;
 import GameLibrary.util.Consts;
 import GameLibrary.util.Logger;
 import de.matthiasmann.twl.Button;
@@ -18,6 +19,7 @@ import de.matthiasmann.twl.theme.ThemeManager;
 public class UserInterface {
 	
 	public static boolean debugMode = false;
+	public static Callbacks.visualizerCBs callbacks;
 	
 	
 	public static LWJGLRenderer initGUIRenderer(){
@@ -31,20 +33,22 @@ public class UserInterface {
 		return renderer;
 	}
 	
+	
 	private static GUI initTWL(Widget w){
 		return new GUI(w, initGUIRenderer());
 	}
+	
 	
 	public static GUI loadmenus(int menu){
 		GUI gui = null;
 		try{
 			switch(menu){
-		    case Consts.GUI_MAIN:
-		    	gui = initTWL(mainMenu());		    	
-		    	gui.applyTheme(ThemeManager.createThemeManager(
-		    			(new File("./game/res/menus/mainTemplate.xml")).toURI().toURL(), initGUIRenderer()));
-		    	break;
-		    }
+			    case Consts.GUI_MAIN:
+			    	gui = initTWL(mainMenu());
+			    	gui.applyTheme(ThemeManager.createThemeManager(
+			    			(new File("./game/res/menus/mainTemplate.xml")).toURI().toURL(), initGUIRenderer()));
+			    	break;
+			}
 		} catch(IOException e){
 			Logger.log(Logger.ERROR, "failed to load gui theme");
 		}
@@ -52,29 +56,58 @@ public class UserInterface {
 	}
 	
 	private static Widget mainMenu() {
+		// display size
 		int height = Display.getHeight()/2;
 		int width = Display.getWidth()/2;
+		// each objects sizes
+		int objWidth, objHeight;
 		
 		Widget w = new Widget();
-		Button connectButton = new Button("Connect");
-		EditField connectTextBox = new EditField();
-		Label inputLabel = new Label("InputName:");	
+		final Button loginButton = new Button("Login");
+		final EditField nameTextBox = new EditField();
+		final EditField passTextBox = new EditField();
+		final Label nameLabel = new Label("UserName:");
+		final Label passLabel = new Label("Password:");
 		
-		connectButton.setTheme("button");
-		connectButton.setSize(65, 30);
-		connectButton.setPosition(width-(connectButton.getWidth()/2), height+50);
+		objWidth = 65;
+		objHeight = 30;
+		loginButton.setTheme("button");
+		loginButton.setSize(objWidth, objHeight);
+		loginButton.setPosition(width-(objWidth/2), height+(objHeight*2));
 		
-		connectTextBox.setTheme("textBox");
-		connectTextBox.setSize(150, 25);
-		connectTextBox.setPosition(width-(connectTextBox.getWidth()/2), height);
+		objWidth = 150;
+		objHeight = 20;
+		nameTextBox.setTheme("textBox");
+		nameTextBox.setSize(objWidth, objHeight);
+		nameTextBox.setPosition(width-(objWidth/2), (int)(height-(objHeight*1.5)));
 		
+		objWidth = 150;
+		objHeight = 20;
+		passTextBox.setTheme("textBox");
+		passTextBox.setSize(objWidth, objHeight);
+		passTextBox.setPosition(width-(objWidth/2), height);
 		
-		inputLabel.setTheme("label");
-		inputLabel.setPosition(width-connectTextBox.getWidth(), height+(connectTextBox.getHeight()/2));
+		objWidth = 5*nameLabel.getText().length();
+		nameLabel.setTheme("label");
+		nameLabel.setPosition(nameTextBox.getX()-(objWidth+nameTextBox.getWidth()/4), 
+				nameTextBox.getY()+(nameTextBox.getHeight()/2));
 		
-		w.add(inputLabel);
-		w.add(connectButton);
-		w.add(connectTextBox);
+		objWidth = 5*passLabel.getText().length();
+		passLabel.setTheme("label");
+		passLabel.setPosition(passTextBox.getX()-(objWidth+(passTextBox.getWidth()/4)), 
+				passTextBox.getY()+(passTextBox.getHeight()/2));
+		
+		loginButton.addCallback(new Runnable() {
+            public void run() {
+                callbacks.connect(nameTextBox.getText());
+            }
+        });
+
+		w.add(nameLabel);
+		w.add(passLabel);
+		w.add(loginButton);
+		w.add(nameTextBox);
+		w.add(passTextBox);
 		return w;
 	}
 }

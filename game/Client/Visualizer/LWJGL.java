@@ -34,10 +34,11 @@ import GameLibrary.util.Logger;
 
 public class LWJGL {
 
-	private static Properties properties = null;
+	private static int HEIGHT, WIDTH;
 	
-	public static boolean initOpenGL(boolean fullscreen, Properties props){
-		properties = props;
+	public static boolean initOpenGL(boolean fullscreen, int width, int height){
+		WIDTH = width;
+		HEIGHT = height;
 		try {
 			// create the rendering window
 			Display.setDisplayMode(toggleFullscreen(fullscreen));
@@ -76,6 +77,7 @@ public class LWJGL {
 	}
 	
 	public static DisplayMode toggleFullscreen(boolean fullscreen) throws LWJGLException{
+		// TODO: make this adjust to user defined parameters
 		if (fullscreen){
 			DisplayMode[] modes = Display.getAvailableDisplayModes();
 			Display.setFullscreen(true);
@@ -84,7 +86,7 @@ public class LWJGL {
 			
 		} else {
 			Display.setFullscreen(false);
-			return new DisplayMode(properties.width, properties.height);
+			return new DisplayMode(WIDTH, HEIGHT);
 		}
 	}
 	
@@ -96,7 +98,7 @@ public class LWJGL {
 		
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		glOrtho(0, properties.width, properties.height, 0, 1, -1);
+		glOrtho(0, Display.getWidth(), Display.getHeight(), 0, 1, -1);
 		glMatrixMode(GL_MODELVIEW);
 		glClearColor(0, 0, 0, 1);
 		glLoadIdentity();

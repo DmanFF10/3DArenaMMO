@@ -44,17 +44,18 @@ public class Visualizer extends Thread {
 
 	//inputs
 	boolean keyUp, keyDown, keyLeft, keyRight, mouseLeft, changed;
-
-	// font
 	private GUI gui;
+	
 
 	public Visualizer(Callbacks.visualizerCBs	cbs){
 		// set callbacks
 		this.cbs = cbs;
+		UserInterface.callbacks = cbs;
 	}
 
 	public void run() {
-		if(LWJGL.initOpenGL(properties.fullscreen, properties)){
+		if(LWJGL.initOpenGL(properties.fullscreen, properties.width, properties.height)){
+			// loads user interface for the main menu
 			gui = UserInterface.loadmenus(Consts.GUI_MAIN);
 			
 			// main render loop
@@ -78,7 +79,7 @@ public class Visualizer extends Thread {
 		glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 		glLoadIdentity();
 		
-		// processes acording to the state of the game
+		// processes according to the state of the game
 		switch(cbs.state()){
 			case MainMenu:
 				// display menu

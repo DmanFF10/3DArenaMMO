@@ -38,6 +38,10 @@ public class Manager {
 	public Manager(){
 		// stars logging
 		Logger.startLogger("Client");
+		startVisualizer();
+	}
+	
+	public void startVisualizer(){
 		// initialize the game view
 		view = new Visualizer(vizCBs());
 		Logger.log(Logger.INFO, "Starting graphical front end");
@@ -121,10 +125,8 @@ public class Manager {
 				live = false;
 			}
 			
-			public void connect(String username, String serverAddress, int serverPort) {
+			public void connect(String username) {
 				startGame(username);
-				address = serverAddress;
-				port = serverPort;
 			}
 			
 			public void requestMove(Vector3f direction, Vector3f rotation){

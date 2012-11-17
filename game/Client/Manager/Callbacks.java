@@ -20,7 +20,7 @@ public class Callbacks {
 	// callback for the visualizer class
 	public interface visualizerCBs{
 		void endLive();
-		void connect(String name, String address, int port);
+		void connect(String name);
 		void requestMove(Vector3f direction, Vector3f rotation);
 		Manager.State state();
 		GameClient game();
