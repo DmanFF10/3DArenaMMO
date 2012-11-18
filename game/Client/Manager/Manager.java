@@ -55,6 +55,18 @@ public class Manager {
 	}
 	
 	public void processCommand(Command data){
+		switch(data.getCommandType()){
+			case Consts.TYPE_LOGIN_PASS:
+				if(game.getID() == Consts.DISCONNECTED){
+					game.setID(data.getID());
+					game.addPlayer(data.getUsername());
+					state = State.Lobby;
+					Logger.log(Logger.INFO, "Logged Into Server");
+				} else {
+					game.addPlayer(data.getUsername());
+				}
+				break;
+		}
 	}
 	
 	private listenerCBs initCBs(){
@@ -72,10 +84,9 @@ public class Manager {
 			
 			public void process(String data){
 				Logger.log(Logger.DEBUG, data);
-				if (Packer.isEnd(data)){
-					Logger.log(Logger.DEBUG, "passed");
+				if (Command.isEnd(data)){
 					command.add(data);
-					processCommand(Packer.unpack(command));
+					processCommand(Command.unpack(command));
 					command = new ArrayList<String>();
 				} else {
 					command.add(data);
@@ -97,7 +108,7 @@ public class Manager {
 			public void connect(String username, String password) {
 				game.setName(username);
 				Command login = new Command(game.getID(), username, password);
-				sender.send(Packer.pack(login));
+				sender.send(login.pack());
 			}
 			
 			public void requestMove(Vector3f direction, Vector3f rotation){

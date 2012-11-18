@@ -4,28 +4,30 @@
     <images file="template.png">
         <area name="box" xywh="2,2,40,32" nocenter="true" splitx="L13,R13" splity="T5,B5"/>
         <area name="box.background" xywh="44,3,38,30" splitx="L9,R9" splity="T9,B9" border="2"/>
-        <area name="checkbox.overlay" xywh="127,1,30,31" if="selected" center="true" inset="-12,0,0,-7"/>
-        <area name="radiobutton.overlay" xywh="10,42,3,5" if="selected"/>
-        <grid name="checkbox.background" weightsX="1,1" weightsY="1,1">
-            <area xywh="1,1,12,12"/>
-            <area xywh="31,1,12,12"/>
-            <area xywh="1,23,12,12"/>
-            <area xywh="31,23,12,12"/>
-        </grid>
-        <alias name="editfield.background" ref="box"/>
-        <alias name="radiobutton.background" ref="checkbox.background"/>
-        <composed name="box.panel.blue">
-            <alias ref="box.background" tint="#0614B7"/>
-            <alias ref="box" tint="#D70202"/>
+        <area name="white" xywh="1,36,1,1"/>
+        <area name="vscrollbar.thumb" xywh="158,15,16,5" center="true"/>
+        <area name="hscrollbar.thumb" xywh="158,21,5,16" center="true"/>
+        <area name="arrow" xywh="158,1,16,13" center="true"/>
+        <alias name="editfield.cursor" ref="white" tint="#5DED1D"/>
+        <alias name="editfield.selection" ref="white" tint="#640D09FD"/>
+        <alias name="listbox.highlight" ref="white" if="selected" tint="#646C6C6C"/>
+        <composed name="box.panel.trans.purple">
+            <alias ref="box.background" tint="#326331D5"/>
+            <alias ref="box"/>
         </composed>
-        <composed name="box.panel.green">
-            <alias ref="box.background" tint="#008F0B"/>
-            <alias ref="box" tint="#D70202"/>
+        <composed name="box.panel.trans.blue">
+            <alias ref="box.background" tint="#640300CD"/>
+            <alias ref="box"/>
         </composed>
+    
         <select name="button.background">
-            <alias ref="box.panel.green" if="pressed|selected" inset="2,2,-2,-2"/>
-            <alias ref="box.panel.green" if="hover"/>
-            <alias ref="box.panel.blue"/>
+            <alias ref="box.panel.trans.blue" if="pressed|selected" inset="2,2,-2,-2"/>
+            <alias ref="box.panel.trans.blue" if="hover"/>
+            <alias ref="box.panel.trans.purple"/>
+        </select>
+        <select name="scrollButton.background">
+            <alias ref="box.panel.trans.blue" if="hover"/>
+            <alias ref="box.panel.trans.purple"/>
         </select>
     </images>
     <fontDef name="normal" filename="font.fnt" color="#FFFFFF" default="true">
@@ -64,11 +66,16 @@
         <param name="maxHeight"><int>0</int></param>
         <param name="inputMap"><inputMap>-defaultInputMap</inputMap></param>
     </theme>
+    <theme name="panel" ref="-defaults">
+        <param name="background"><image>box.panel.trans.blue</image></param>
+    </theme>
 
     <theme name="label" ref="-defaults" allowWildcard="true">
     </theme>
     <theme name="editfield" ref="-defaults">
-        <param name="background"><image>box</image></param>
+        <param name="background"><image>box.panel.trans.purple</image></param>
+        <param name="cursor"><image>editfield.cursor</image></param>
+        <param name="selection"><image>editfield.selection</image></param>
         <param name="border"><border>2,10,4,10</border></param>
         <theme name="renderer" ref="-defaults"/>
     </theme>
@@ -77,28 +84,63 @@
         <param name="border"><border>6,0</border></param>
         <param name="font"><font>button.font</font></param>
     </theme>
-    <theme name="panel" ref="-defaults">
-        <param name="background"><image>box.panel.blue</image></param>
+    <theme name="vscrollbar" ref="-defaults">
+        <theme name="upbutton" ref="button">
+            <param name="background"><image>scrollButton.background</image></param>
+        </theme>
+        <theme name="downbutton" ref="button">
+            <param name="background"><image>scrollButton.background</image></param>
+        </theme>
+        <theme name="thumb" ref="-defaults">
+            <param name="background"><image>scrollButton.background</image></param>
+            <param name="overlay"><image>vscrollbar.thumb</image></param>
+        </theme>
+        <param name="scaleThumb"><bool>true</bool></param>
+        <param name="background"><image>box</image></param>
     </theme>
-    <theme name="togglebutton" ref="button">
+    <theme name="hscrollbar" ref="-defaults">
+        <theme name="leftbutton" ref="button">
+            <param name="background"><image>scrollButton.background</image></param>
+        </theme>
+        <theme name="rightbutton" ref="button">
+            <param name="background"><image>scrollButton.background</image></param>
+        </theme>
+        <theme name="thumb" ref="-defaults">
+            <param name="background"><image>scrollButton.background</image></param>
+            <param name="overlay"><image>hscrollbar.thumb</image></param>
+        </theme>
+        <param name="scaleThumb"><bool>true</bool></param>
+        <param name="background"><image>box</image></param>
     </theme>
-    <theme name="checkbox" ref="-defaults">
-        <param name="background"><image>checkbox.background</image></param>
-        <param name="overlay"><image>checkbox.overlay</image></param>
-    </theme>
-    <theme name="radiobutton" ref="-defaults">
-        <param name="background"><image>radiobutton.background</image></param>
-        <param name="overlay"><image>radiobutton.overlay</image></param>
+    <theme name="listbox" ref="-defaults">
+        <param name="background"><image>box.panel.trans.purple</image></param>
+        <param name="border"><border>10,5</border></param>
+        <theme name="display" ref="label">
+            <param name="background"><image>listbox.highlight</image></param>
+        </theme>
+        <theme name="vscrollbar" ref="vscrollbar"/>
     </theme>
     <theme name="widget" ref="-defaults">
         <theme name="button" ref="button"/>
         <theme name="label" ref="label"/>
         <theme name="textBox" ref="editfield"/>
+        <theme name="listbox" ref="listbox"/>
     </theme>
     <theme name="tooltipwindow" ref="-defaults">
 	    <param name="background"><image>box.background</image></param>
 	    <param name="border"><border>3</border></param>
 	    <param name="fadeInTime"><int>1000</int></param>
-	    <theme name="label" ref="-defaults"></theme>
+	    <theme name="label" ref="-defaults"/>
+    </theme>
+    <theme name="combobox" ref="panel">
+        <theme name="display" ref="label">
+            <param name="border"><border>0,10,0,5</border></param>
+        </theme>
+        <theme name="button" ref="button">
+            <param name="overlay"><image>arrow</image></param>
+        </theme>
+        <theme name="comboboxPopup" ref="-defaults">
+            <theme name="listbox" ref="listbox"/>
+        </theme>
     </theme>
 </themes>

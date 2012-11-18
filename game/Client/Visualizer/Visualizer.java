@@ -1,5 +1,8 @@
 package Client.Visualizer;
 
+import java.io.File;
+import java.io.IOException;
+
 import org.lwjgl.*;
 import static org.lwjgl.opengl.GL11.*;
 import org.lwjgl.input.Keyboard;
@@ -7,7 +10,14 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.*;
 import org.lwjgl.util.vector.Vector3f;
 
+import de.matthiasmann.twl.Button;
+import de.matthiasmann.twl.EditField;
 import de.matthiasmann.twl.GUI;
+import de.matthiasmann.twl.Label;
+import de.matthiasmann.twl.ListBox;
+import de.matthiasmann.twl.Widget;
+import de.matthiasmann.twl.renderer.lwjgl.LWJGLRenderer;
+import de.matthiasmann.twl.theme.ThemeManager;
 
 import Client.Manager.Callbacks;
 import Client.Manager.Properties;
@@ -44,25 +54,21 @@ public class Visualizer extends Thread {
 
 	//inputs
 	boolean keyUp, keyDown, keyLeft, keyRight, mouseLeft, changed;
+	int currentUI = -1;
 	private GUI gui;
 	
 
 	public Visualizer(Callbacks.visualizerCBs	cbs){
 		// set callbacks
 		this.cbs = cbs;
-		UserInterface.callbacks = cbs;
 	}
 
 	public void run() {
 		if(LWJGL.initOpenGL(properties.fullscreen, properties.width, properties.height)){
-			// loads user interface for the main menu
-			gui = UserInterface.loadmenus(Consts.GUI_MAIN);
-			
 			// main render loop
 			while(!Display.isCloseRequested()){
 				render();
 			}
-			
 			// clean up memory after closing display
 			Display.destroy();
 			// write property changes to file
@@ -83,12 +89,26 @@ public class Visualizer extends Thread {
 		switch(cbs.state()){
 			case Login:
 				// display menu
+				if (currentUI != Consts.GUI_LOGIN){
+					loadmenus(Consts.GUI_LOGIN);
+					currentUI = Consts.GUI_LOGIN;
+				}
+				LWJGL.enable2D();
+				gui.update();
+				LWJGL.disable2D();
+				break;
+			
+			case Lobby:
+				if (currentUI != Consts.GUI_LOBBY){
+					loadmenus(Consts.GUI_LOBBY);
+					currentUI = Consts.GUI_LOBBY;
+				}
 				LWJGL.enable2D();
 				gui.update();
 				LWJGL.disable2D();
 				break;
 		
-			case Game:
+			/*case Game:
 				updateVars();
 				processInputs();
 				game.updateUnits(delta);
@@ -100,7 +120,7 @@ public class Visualizer extends Thread {
 		
 				drawTerrain(trans, rotate);
 				drawPlayers(trans, rotate);
-				break;
+				break;*/
 		}
 		
 		// draws data to the screen
@@ -150,7 +170,7 @@ public class Visualizer extends Thread {
 		}
 	}
 	
-	private void drawPlayers(Vector3f trans, Vector3f rotate){
+	/*private void drawPlayers(Vector3f trans, Vector3f rotate){
 		int playerSize = game.playerSize();	
 		for (int playerID = 0; playerID<playerSize; playerID++){
 			Character unit = game.getCharacter(playerID);
@@ -176,7 +196,7 @@ public class Visualizer extends Thread {
 			glEnd();				
 			glLoadIdentity();
 		}
-	}
+	}*/
 	
 	/* Updating and Calculations */
 	private long getTime(){
@@ -256,7 +276,7 @@ public class Visualizer extends Thread {
 		camera.position.z = ((float) Math.cos(Math.toRadians(camera.rotation.y))*10)+position.z;
 	}
 	
-	private void updateVars(){
+	/*private void updateVars(){
 
 		// get time between frames
 		delta = getDelta();
@@ -272,5 +292,149 @@ public class Visualizer extends Thread {
 			fpscount = 0;
 		}
 		fpscount += delta;
+	}*/
+	
+	public void loadmenus(int menu){
+		switch(menu){
+			case Consts.GUI_LOGIN:
+				gui = initTWL(login());
+				break;
+			case Consts.GUI_LOBBY:
+				gui = initTWL(lobby());
+		}
+	}
+	
+	
+	private GUI initTWL(Widget w){
+		try{
+			GUI g = new GUI(w, new LWJGLRenderer());
+			g.applyTheme(ThemeManager.createThemeManager(
+					(new File("./game/res/menus/mainTemplate.xml")).toURI().toURL(), new LWJGLRenderer()));
+			return g;
+		} catch(Exception e){
+			Logger.log(Logger.ERROR, "failed to load TWL");
+			return null;
+		}
+	}
+	
+	private Widget login() {
+		// display size
+		int height = Display.getHeight()/2;
+		int width = Display.getWidth()/2;
+		// each objects sizes
+		int objWidth, objHeight;
+		
+		Widget w = new Widget();
+		final Button loginButton = new Button("Login");
+		final EditField nameTextBox = new EditField();
+		final EditField passTextBox = new EditField();
+		final Label nameLabel = new Label("UserName:");
+		final Label passLabel = new Label("Password:");
+		
+		// buttons
+		objWidth = 65;
+		objHeight = 30;
+		loginButton.setTheme("button");
+		loginButton.setSize(objWidth, objHeight);
+		loginButton.setPosition(width-(objWidth/2), height+(objHeight*2));
+		
+		// textboxes
+		objWidth = 150;
+		objHeight = 20;
+		nameTextBox.setTheme("textBox");
+		nameTextBox.setSize(objWidth, objHeight);
+		nameTextBox.setPosition(width-(objWidth/2), (int)(height-(objHeight*1.5)));
+		
+		passTextBox.setTheme("textBox");
+		passTextBox.setSize(objWidth, objHeight);
+		passTextBox.setPosition(width-(objWidth/2), height);
+		
+		// labels
+		objWidth = 5*nameLabel.getText().length();
+		nameLabel.setTheme("label");
+		nameLabel.setPosition(nameTextBox.getX()-(objWidth+nameTextBox.getWidth()/4),
+		nameTextBox.getY()+(nameTextBox.getHeight()/2));
+		
+		objWidth = 5*passLabel.getText().length();
+		passLabel.setTheme("label");
+		passLabel.setPosition(passTextBox.getX()-(objWidth+(passTextBox.getWidth()/4)),
+		passTextBox.getY()+(passTextBox.getHeight()/2));
+		
+		// event listeners
+		loginButton.addCallback(new Runnable() {
+		            public void run() {
+		                cbs.connect(nameTextBox.getText(), passTextBox.getText());
+		            }
+		        });
+		
+		w.add(nameLabel);
+		w.add(passLabel);
+		w.add(loginButton);
+		w.add(nameTextBox);
+		w.add(passTextBox);
+		return w;
+	}
+	
+	private Widget lobby() {
+		// display size
+		int height = Display.getHeight();
+		int width = Display.getWidth();
+		// each objects sizes
+		int objWidth, objHeight;
+		
+		Widget w = new Widget();
+		final Button logoutButton = new Button("Logout");
+		final Button settingsButton = new Button("Settings");
+		final Button profileButton = new Button("Profile");
+		final Button storeButton = new Button("Store");
+		final Button newsButton = new Button("News");
+		final Button playButton = new Button("Play");
+		
+		final ListBox playersListBox = new ListBox();
+		
+		//buttons
+		objWidth = 65;
+		objHeight = 30;
+		logoutButton.setTheme("button");
+		logoutButton.setSize(objWidth, objHeight);
+		logoutButton.setPosition(width-(objWidth+15), 0);
+		
+		settingsButton.setTheme("button");
+		settingsButton.setSize(objWidth, objHeight);
+		settingsButton.setPosition(width-((objWidth+15)*2), 0);
+		
+		profileButton.setTheme("button");
+		profileButton.setSize(objWidth, objHeight);
+		profileButton.setPosition(width-((objWidth+15)*3), 0);
+		
+		storeButton.setTheme("button");
+		storeButton.setSize(objWidth, objHeight);
+		storeButton.setPosition(width-((objWidth+15)*4), 0);
+		
+		newsButton.setTheme("button");
+		newsButton.setSize(objWidth, objHeight);
+		newsButton.setPosition(width-((objWidth+15)*5), 0);
+		
+		playButton.setTheme("button");
+		playButton.setSize(objWidth, objHeight);
+		playButton.setPosition(width-((objWidth+15)*6), 0);
+		
+		//list boxes
+		objWidth = width/4;
+		objHeight = height-45;
+		playersListBox.setTheme("listbox");
+		playersListBox.setSize(objWidth, objHeight);
+		playersListBox.setPosition(width-(objWidth+15), 35);
+		
+		
+		
+		w.add(logoutButton);
+		w.add(settingsButton);
+		w.add(profileButton);
+		w.add(storeButton);
+		w.add(newsButton);
+		w.add(playButton);
+		w.add(playersListBox);
+		return w;
 	}
 }

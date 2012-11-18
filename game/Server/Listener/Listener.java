@@ -18,7 +18,6 @@ public class Listener {
 	private DatagramSocket server;
 	private listenerCBs cbs;
 	public ArrayList<Client> clients = new ArrayList<Client>();
-	private ArrayList<ArrayList<String>> messages = new ArrayList<ArrayList<String>>();
 	
 	public Listener(int port, Manager.listenerCBs cbs){
 		this.cbs = cbs;
@@ -44,6 +43,10 @@ public class Listener {
 				server.receive(packet);
 			    // sends the packet to be processed
 				cbs.process(packet);
+		    	// resets the byte buffer
+				data = new byte[512];
+		    	packet.setData(data);
+		    	
 			} catch(IOException e){
 				Logger.log(Logger.ERROR, "failed to receive packet");
 			}

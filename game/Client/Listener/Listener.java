@@ -48,7 +48,7 @@ public class Listener extends Thread {
 		    	client.receive(packet);
 		    	cbs.process(new String(packet.getData()));
 		    	data = new byte[512];
-		    	packet = new DatagramPacket(data, data.length);
+		    	packet.setData(data);
 		    	
 		    }catch(Exception e){}
 		    

@@ -11,19 +11,12 @@ import GameLibrary.util.Consts;
 
 public class GameClient {
 
-	private ArrayList<Character> characters = new ArrayList<Character>();
+	private ArrayList<Player> players = new ArrayList<Player>();
 	private int id;
-	private String name;
 	public Map map = new Map();
 	
 	public GameClient(){
 		id = Consts.DISCONNECTED;
-		this.name = "";
-	}
-	
-	public GameClient(String name){
-		id = Consts.DISCONNECTED;
-		this.name = name;
 	}
 	
 	public int getID(){
@@ -35,30 +28,27 @@ public class GameClient {
 	}
 	
 	public String getName(){
-		return name;
+		if (id != Consts.DISCONNECTED){
+			return players.get(id).getUsername();
+		}
+		return "";
 	}
 	
 	public void setName(String name){
-		this.name = name;
+		if (id != Consts.DISCONNECTED){
+			players.get(id).setUsername(name);
+		}
 	}
 	
-	public Character getCharacter(int id){
-		return characters.get(id);
-	}
-	
-	public void setCharacter(int id, Character unit){
-		characters.set(id, unit);
-	}
-	
-	public void addCharacter(Character unit){
-		characters.add(unit);
+	public void addPlayer(String username){
+		players.add(new Player(players.size(), username));
 	}
 	
 	public int playerSize(){
-		return characters.size();
+		return players.size();
 	}
 	
-	public void updateUnits(int delta){
+	/*public void updateUnits(int delta){
 		for(int i=0; i<playerSize(); i++){
 			Character unit = getCharacter(i);
 			if (unit.movement.x == Consts.MOVE_BACKWORD_RIGHT){
@@ -96,5 +86,5 @@ public class GameClient {
 			}
 			characters.set(i, unit);
 		}
-	} 
+	}*/
 }

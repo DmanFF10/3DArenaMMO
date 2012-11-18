@@ -14,30 +14,26 @@ import GameLibrary.util.Loader;
 
 public class GameServer {
 	
-	private ArrayList<Character> characters = new ArrayList<Character>();
+	private ArrayList<Player> players = new ArrayList<Player>();
 	public Map map;
 	
 	public GameServer(String mapname){
 		map = Loader.readMap(mapname);
 	}
 	
-	public ArrayList<Character> getCharacters(){
-		return characters;
+	public ArrayList<Player> getPlayers(){
+		return players;
 	}
 	
-	public Character getCharacter(int id){
-		return characters.get(id);
+	public Player getPlayer(int id){
+		return players.get(id);
 	}
 	
-	public void setCharacter(int id, Character unit){
-		characters.set(id, unit);
+	public void addPlayer(int id, String username){
+		players.add(new Player(id, username));
 	}
 	
-	public void addCharacter(){
-		characters.add(new Character(0f, 0f, 0f));
-	}
-	
-	public void updateUnit(int id, long time, Vector3f movement, Vector3f rotation){
+	/*public void updateUnit(int id, long time, Vector3f movement, Vector3f rotation){
 		Character player = getCharacter(id);
 		int delta;
 		boolean rotated = false;
@@ -94,6 +90,5 @@ public class GameServer {
 			player.timez = time;
 		}
 		setCharacter(id, player);
-	}
-	
+	}*/
 }
