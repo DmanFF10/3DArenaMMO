@@ -1,7 +1,6 @@
 package Client.Visualizer;
 
 import java.io.File;
-import java.io.IOException;
 
 import org.lwjgl.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -10,23 +9,18 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.*;
 import org.lwjgl.util.vector.Vector3f;
 
-import de.matthiasmann.twl.Button;
-import de.matthiasmann.twl.EditField;
 import de.matthiasmann.twl.GUI;
-import de.matthiasmann.twl.Label;
-import de.matthiasmann.twl.ListBox;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.renderer.lwjgl.LWJGLRenderer;
 import de.matthiasmann.twl.theme.ThemeManager;
 
 import Client.Manager.Callbacks;
 import Client.Manager.Properties;
-import Client.Manager.Callbacks.visualizerCBs;
+import Client.Visualizer.Interface.*;
+import Client.Visualizer.util.*;
 import GameLibrary.*;
 import GameLibrary.Character;
-import GameLibrary.Graphics.Face;
-import GameLibrary.Graphics.Polygon;
-import GameLibrary.Graphics.Sector;
+import GameLibrary.Graphics.*;
 import GameLibrary.util.Consts;
 import GameLibrary.util.Logger;
 import static org.lwjgl.util.glu.GLU.gluPerspective;
@@ -43,7 +37,7 @@ public class Visualizer extends Thread {
 	private Callbacks.visualizerCBs cbs;
 
 	// time
-	private long lastFrame = getTime();
+	private long lastFrame = Time.getTime();
 	private int delta, fps, fpscount;
 
 	// primary game objects
@@ -80,7 +74,6 @@ public class Visualizer extends Thread {
 
 	/* Drawing Mechanics */
 	private void render() {
-		
 		// clear the screen
 		glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 		glLoadIdentity();
@@ -107,20 +100,6 @@ public class Visualizer extends Thread {
 				gui.update();
 				LWJGL.disable2D();
 				break;
-		
-			/*case Game:
-				updateVars();
-				processInputs();
-				game.updateUnits(delta);
-				updateCamera();
-				
-				// view translation and rotations
-				Vector3f trans = new Vector3f(-camera.position.x, -camera.position.y, -camera.position.z);
-				Vector3f rotate = new Vector3f(-camera.rotation.x, -camera.rotation.y, -camera.rotation.z);
-		
-				drawTerrain(trans, rotate);
-				drawPlayers(trans, rotate);
-				break;*/
 		}
 		
 		// draws data to the screen
@@ -129,7 +108,7 @@ public class Visualizer extends Thread {
 		Display.sync(60);
 	}
 	
-	private void drawTerrain(Vector3f trans, Vector3f rotate){
+	/*private void drawTerrain(Vector3f trans, Vector3f rotate){
 		Vector3f sloc, ploc;
 		// loops through the sectors
 		for (int snum = 0; snum<map.sectors.size(); snum++){
@@ -170,7 +149,7 @@ public class Visualizer extends Thread {
 		}
 	}
 	
-	/*private void drawPlayers(Vector3f trans, Vector3f rotate){
+	private void drawPlayers(Vector3f trans, Vector3f rotate){
 		int playerSize = game.playerSize();	
 		for (int playerID = 0; playerID<playerSize; playerID++){
 			Character unit = game.getCharacter(playerID);
@@ -196,20 +175,6 @@ public class Visualizer extends Thread {
 			glEnd();				
 			glLoadIdentity();
 		}
-	}*/
-	
-	/* Updating and Calculations */
-	private long getTime(){
-		// return the current time
-		return (Sys.getTime() * 1000) / Sys.getTimerResolution();
-	}
-
-	private int getDelta(){
-		// returns the time between frames (delta)
-		long currentTime = getTime();
-		int delta = (int) (currentTime - lastFrame);
-		lastFrame = getTime();
-		return delta;
 	}
 	
 	private void processInputs() {
@@ -276,7 +241,7 @@ public class Visualizer extends Thread {
 		camera.position.z = ((float) Math.cos(Math.toRadians(camera.rotation.y))*10)+position.z;
 	}
 	
-	/*private void updateVars(){
+	private void updateVars(){
 
 		// get time between frames
 		delta = getDelta();
@@ -297,144 +262,11 @@ public class Visualizer extends Thread {
 	public void loadmenus(int menu){
 		switch(menu){
 			case Consts.GUI_LOGIN:
-				gui = initTWL(login());
+				gui = Interface.createGUI(new Login(cbs), "Login");
 				break;
 			case Consts.GUI_LOBBY:
-				gui = initTWL(lobby());
+				gui = Interface.createGUI(new Lobby(), "Lobby");
+				break;
 		}
-	}
-	
-	
-	private GUI initTWL(Widget w){
-		try{
-			GUI g = new GUI(w, new LWJGLRenderer());
-			g.applyTheme(ThemeManager.createThemeManager(
-					(new File("./game/res/menus/mainTemplate.xml")).toURI().toURL(), new LWJGLRenderer()));
-			return g;
-		} catch(Exception e){
-			Logger.log(Logger.ERROR, "failed to load TWL");
-			return null;
-		}
-	}
-	
-	private Widget login() {
-		// display size
-		int height = Display.getHeight()/2;
-		int width = Display.getWidth()/2;
-		// each objects sizes
-		int objWidth, objHeight;
-		
-		Widget w = new Widget();
-		final Button loginButton = new Button("Login");
-		final EditField nameTextBox = new EditField();
-		final EditField passTextBox = new EditField();
-		final Label nameLabel = new Label("UserName:");
-		final Label passLabel = new Label("Password:");
-		
-		// buttons
-		objWidth = 65;
-		objHeight = 30;
-		loginButton.setTheme("button");
-		loginButton.setSize(objWidth, objHeight);
-		loginButton.setPosition(width-(objWidth/2), height+(objHeight*2));
-		
-		// textboxes
-		objWidth = 150;
-		objHeight = 20;
-		nameTextBox.setTheme("textBox");
-		nameTextBox.setSize(objWidth, objHeight);
-		nameTextBox.setPosition(width-(objWidth/2), (int)(height-(objHeight*1.5)));
-		
-		passTextBox.setTheme("textBox");
-		passTextBox.setSize(objWidth, objHeight);
-		passTextBox.setPosition(width-(objWidth/2), height);
-		
-		// labels
-		objWidth = 5*nameLabel.getText().length();
-		nameLabel.setTheme("label");
-		nameLabel.setPosition(nameTextBox.getX()-(objWidth+nameTextBox.getWidth()/4),
-		nameTextBox.getY()+(nameTextBox.getHeight()/2));
-		
-		objWidth = 5*passLabel.getText().length();
-		passLabel.setTheme("label");
-		passLabel.setPosition(passTextBox.getX()-(objWidth+(passTextBox.getWidth()/4)),
-		passTextBox.getY()+(passTextBox.getHeight()/2));
-		
-		// event listeners
-		loginButton.addCallback(new Runnable() {
-		            public void run() {
-		                cbs.connect(nameTextBox.getText(), passTextBox.getText());
-		            }
-		        });
-		
-		w.add(nameLabel);
-		w.add(passLabel);
-		w.add(loginButton);
-		w.add(nameTextBox);
-		w.add(passTextBox);
-		return w;
-	}
-	
-	private Widget lobby() {
-		// display size
-		int height = Display.getHeight();
-		int width = Display.getWidth();
-		// each objects sizes
-		int objWidth, objHeight;
-		
-		Widget w = new Widget();
-		final Button logoutButton = new Button("Logout");
-		final Button settingsButton = new Button("Settings");
-		final Button profileButton = new Button("Profile");
-		final Button storeButton = new Button("Store");
-		final Button newsButton = new Button("News");
-		final Button playButton = new Button("Play");
-		
-		final ListBox playersListBox = new ListBox();
-		
-		//buttons
-		objWidth = 65;
-		objHeight = 30;
-		logoutButton.setTheme("button");
-		logoutButton.setSize(objWidth, objHeight);
-		logoutButton.setPosition(width-(objWidth+15), 0);
-		
-		settingsButton.setTheme("button");
-		settingsButton.setSize(objWidth, objHeight);
-		settingsButton.setPosition(width-((objWidth+15)*2), 0);
-		
-		profileButton.setTheme("button");
-		profileButton.setSize(objWidth, objHeight);
-		profileButton.setPosition(width-((objWidth+15)*3), 0);
-		
-		storeButton.setTheme("button");
-		storeButton.setSize(objWidth, objHeight);
-		storeButton.setPosition(width-((objWidth+15)*4), 0);
-		
-		newsButton.setTheme("button");
-		newsButton.setSize(objWidth, objHeight);
-		newsButton.setPosition(width-((objWidth+15)*5), 0);
-		
-		playButton.setTheme("button");
-		playButton.setSize(objWidth, objHeight);
-		playButton.setPosition(width-((objWidth+15)*6), 0);
-		
-		//list boxes
-		objWidth = width/4;
-		objHeight = height-45;
-		playersListBox.setTheme("listbox");
-		playersListBox.setSize(objWidth, objHeight);
-		playersListBox.setPosition(width-(objWidth+15), 35);
-		
-		
-		
-		w.add(logoutButton);
-		w.add(settingsButton);
-		w.add(profileButton);
-		w.add(storeButton);
-		w.add(newsButton);
-		w.add(playButton);
-		w.add(playersListBox);
-		return w;
 	}
 }

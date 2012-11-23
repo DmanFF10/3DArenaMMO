@@ -11,10 +11,12 @@
         <alias name="editfield.cursor" ref="white" tint="#5DED1D"/>
         <alias name="editfield.selection" ref="white" tint="#640D09FD"/>
         <alias name="listbox.highlight" ref="white" if="selected" tint="#646C6C6C"/>
+        
         <composed name="box.panel.trans.purple">
             <alias ref="box.background" tint="#326331D5"/>
             <alias ref="box"/>
         </composed>
+        
         <composed name="box.panel.trans.blue">
             <alias ref="box.background" tint="#640300CD"/>
             <alias ref="box"/>
@@ -25,17 +27,21 @@
             <alias ref="box.panel.trans.blue" if="hover"/>
             <alias ref="box.panel.trans.purple"/>
         </select>
+        
         <select name="scrollButton.background">
             <alias ref="box.panel.trans.blue" if="hover"/>
             <alias ref="box.panel.trans.purple"/>
         </select>
     </images>
+    
+    
     <fontDef name="normal" filename="font.fnt" color="#FFFFFF" default="true">
         <fontParam if="error" color="red"/>
         <fontParam if="warning" color="orange"/>
         <fontParam if="disabled" color="gray"/>
         <fontParam if="textSelection" color="blue"/>
     </fontDef>
+    
     <fontDef name="button.font" filename="font.fnt" color="#FFFFFF">
         <fontParam if="error" color="red"/>
         <fontParam if="warning" color="orange"/>
@@ -43,6 +49,7 @@
         <fontParam if="textSelection" color="blue"/>
         <fontParam if="pressed|selected" offsetX="2" offsetY="2"/>
     </fontDef>
+
 
     <inputMapDef name="-defaultInputMap">
         <action name="selectAll">ctrl A</action>
@@ -66,24 +73,32 @@
         <param name="maxHeight"><int>0</int></param>
         <param name="inputMap"><inputMap>-defaultInputMap</inputMap></param>
     </theme>
+
+    
+    <theme name="label" ref="-defaults" allowWildcard="true" />
+        
     <theme name="panel" ref="-defaults">
         <param name="background"><image>box.panel.trans.blue</image></param>
     </theme>
-
-    <theme name="label" ref="-defaults" allowWildcard="true">
-    </theme>
-    <theme name="editfield" ref="-defaults">
-        <param name="background"><image>box.panel.trans.purple</image></param>
-        <param name="cursor"><image>editfield.cursor</image></param>
-        <param name="selection"><image>editfield.selection</image></param>
-        <param name="border"><border>2,10,4,10</border></param>
-        <theme name="renderer" ref="-defaults"/>
-    </theme>
+    
     <theme name="button" ref="-defaults">
         <param name="background"><image>button.background</image></param>
         <param name="border"><border>6,0</border></param>
         <param name="font"><font>button.font</font></param>
     </theme>
+    
+    <theme name="editfield" ref="-defaults">
+        <param name="background"><image>box.panel.trans.purple</image></param>
+        <param name="border"><border>2,10,4,10</border></param>
+        <param name="passwordChar"><int>0x25CF</int></param>
+        <param name="maxWidth"><int>32767</int></param>
+        <param name="columns"><int>5</int></param>
+        <param name="autocompletion-height"><int>150</int></param>
+        <param name="cursor"><image>editfield.cursor</image></param>
+        <param name="selection"><image>editfield.selection</image></param>
+        <theme name="renderer" ref="-defaults"/>
+    </theme>
+    
     <theme name="vscrollbar" ref="-defaults">
         <theme name="upbutton" ref="button">
             <param name="background"><image>scrollButton.background</image></param>
@@ -98,20 +113,14 @@
         <param name="scaleThumb"><bool>true</bool></param>
         <param name="background"><image>box</image></param>
     </theme>
-    <theme name="hscrollbar" ref="-defaults">
-        <theme name="leftbutton" ref="button">
-            <param name="background"><image>scrollButton.background</image></param>
-        </theme>
-        <theme name="rightbutton" ref="button">
-            <param name="background"><image>scrollButton.background</image></param>
-        </theme>
-        <theme name="thumb" ref="-defaults">
-            <param name="background"><image>scrollButton.background</image></param>
-            <param name="overlay"><image>hscrollbar.thumb</image></param>
-        </theme>
-        <param name="scaleThumb"><bool>true</bool></param>
-        <param name="background"><image>box</image></param>
+    
+    <theme name="hscrollbar" ref="-defaults" allowWildcard="true">
+        <theme name="leftbutton" ref="-defaults"/>
+        <theme name="rightbutton" ref="-defaults"/>
+        <theme name="thumb" ref="-defaults"/>
+        <param name="scaleThumb"><bool>false</bool></param>
     </theme>
+    
     <theme name="listbox" ref="-defaults">
         <param name="background"><image>box.panel.trans.purple</image></param>
         <param name="border"><border>10,5</border></param>
@@ -120,27 +129,78 @@
         </theme>
         <theme name="vscrollbar" ref="vscrollbar"/>
     </theme>
-    <theme name="widget" ref="-defaults">
-        <theme name="button" ref="button"/>
-        <theme name="label" ref="label"/>
-        <theme name="textBox" ref="editfield"/>
-        <theme name="listbox" ref="listbox"/>
-    </theme>
+    
+    <theme name="resizableframe" ref="-defaults" allowWildcard="true">
+    	<param name="background"><image>box.panel.trans.purple</image></param>
+    	<param name="border"><border>background.border</border></param>
+    	<param name="titleAreaTop"><int>1</int></param>
+    	<param name="titleAreaLeft"><int>8</int></param>
+		<param name="titleAreaRight"><int>-8</int></param>
+		<param name="titleAreaBottom"><int>15</int></param>
+		<param name="hasCloseButton"><bool>false</bool></param>
+		<param name="closeButtonX"><int>0</int></param>
+		<param name="closeButtonY"><int>0</int></param>
+		<param name="hasResizeHandle"><bool>false</bool></param>
+		<param name="resizeHandleX"><int>0</int></param>
+		<param name="resizeHandleY"><int>0</int></param>
+		<param name="fadeColorInactive"><color>white</color></param>
+		<param name="fadeDurationActivate"><int>0</int></param>
+		<param name="fadeDurationDeactivate"><int>0</int></param>
+		<param name="fadeDurationShow"><int>0</int></param>
+		<param name="fadeDurationHide"><int>0</int></param>
+		<param name="mouseCursor"><cursor>arrow.*</cursor></param>
+		<theme name="title" ref="-defaults">
+			<param name="textAlignment"><enum type="alignment">left</enum></param>
+			<param name="font"><font>normal</font></param>
+		</theme>
+		<theme name="closeButton" ref="-defaults"/>
+		<theme name="resizeHandle" ref="-defaults"/>
+	</theme>
+
+	<theme name="scrollpane" ref="-defaults" allowWildcard="true">
+		<theme name="hscrollbar" ref="hscrollbar"/>  <!-- not used -->
+		<theme name="vscrollbar" ref="vscrollbar"/>
+		<param name="minWidth"><int>100</int></param>
+		<param name="minHeight"><int>100</int></param>
+		<param name="maxWidth"><int>32767</int></param>
+		<param name="maxHeight"><int>32767</int></param>
+		<param name="hasDragButton"><bool>false</bool></param>
+		<param name="autoScrollArea"><int>5</int></param>
+		<param name="autoScrollSpeed"><int>10</int></param>
+		<param name="scrollbarsAlwaysVisible"><bool>true</bool></param>
+	</theme>
+	
+	<theme name="content" ref="-defaults">
+		<param name="defaultGap"><dimension>5,5</dimension></param>
+		<param name="smallGap"><dimension>8,8</dimension></param>
+		<param name="mediumGap"><dimension>10,10</dimension></param>
+		<param name="largeGap"><dimension>15,15</dimension></param>
+		<param name="namedGaps"><map/></param>
+		<theme name="scrollpane" ref="scrollpane">
+			<param name="background"><image>box.panel.trans.purple</image></param>
+			<theme name="textarea" ref="-defaults">
+				<param name="fonts"><map>
+					<param name="default"><font>normal</font></param>
+				</map></param>
+				<param name="images"><map></map></param>
+				<param name="classes"><map></map></param>
+				<theme name="image" ref="-defaults"/>
+			</theme>
+			<theme name="editfield" ref="editfield" />	
+		</theme>
+	</theme>
+    
     <theme name="tooltipwindow" ref="-defaults">
 	    <param name="background"><image>box.background</image></param>
 	    <param name="border"><border>3</border></param>
 	    <param name="fadeInTime"><int>1000</int></param>
 	    <theme name="label" ref="-defaults"/>
     </theme>
-    <theme name="combobox" ref="panel">
-        <theme name="display" ref="label">
-            <param name="border"><border>0,10,0,5</border></param>
-        </theme>
-        <theme name="button" ref="button">
-            <param name="overlay"><image>arrow</image></param>
-        </theme>
-        <theme name="comboboxPopup" ref="-defaults">
-            <theme name="listbox" ref="listbox"/>
-        </theme>
+    
+    <theme name="lobby" ref="resizableframe">
+        <theme name="label" ref="label"/>
+        <theme name="textBox" ref="editfield"/>
+        <theme name="button" ref="button"/>
+        <theme name="listbox" ref="listbox"/>
     </theme>
 </themes>
