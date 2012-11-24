@@ -1,7 +1,8 @@
 package Client.Visualizer.Interface;
 
-import org.lwjgl.Sys;
 import org.lwjgl.opengl.Display;
+
+import Client.Manager.ICallbacks;
 
 import de.matthiasmann.twl.Button;
 import de.matthiasmann.twl.DialogLayout;
@@ -14,7 +15,7 @@ import de.matthiasmann.twl.TextArea;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.textarea.HTMLTextAreaModel;
 
-public class Lobby extends Widget {
+public class Lobby extends Widget implements ILobby{
 	
 	final Button logoutButton = new Button("Logout");
 	final Button settingsButton = new Button("Settings");
@@ -22,10 +23,12 @@ public class Lobby extends Widget {
 	final Button storeButton = new Button("Store");
 	final Button newsButton = new Button("News");
 	final Button playButton = new Button("Play");
+	@SuppressWarnings("rawtypes")
 	final ListBox playersListBox = new ListBox();
-	final ChatFrame chatFrame = new ChatFrame();
+	final ChatFrame chatFrame;
 	
-	public Lobby(){
+	public Lobby(ICallbacks.visualizerCBs cbs){
+		chatFrame = new ChatFrame(cbs);
 		// display size
 		int height = Display.getHeight();
 		int width = Display.getWidth();
@@ -58,6 +61,12 @@ public class Lobby extends Widget {
 		playButton.setSize(objWidth, objHeight);
 		playButton.setPosition(width-((objWidth+15)*6), 0);
 		
+		playButton.addCallback(new Runnable() {
+            public void run() {
+                chatFrame.appendText(1, "just wondering", "i did it!!");
+            }
+        });
+		
 		objWidth = width/4;
 		objHeight = height-45;
 		playersListBox.setTheme("listbox");
@@ -65,7 +74,7 @@ public class Lobby extends Widget {
 		playersListBox.setPosition(width-(objWidth+15), 35);
 		
 		chatFrame.setSize(300, 300);
-		chatFrame.setPosition(50, 50);
+		chatFrame.setPosition(0, height-(chatFrame.getHeight()));
 		
 		add(logoutButton);
 		add(settingsButton);
@@ -76,6 +85,16 @@ public class Lobby extends Widget {
 		add(playersListBox);
 		add(chatFrame);
 	}
+	@Override
+	public void appendText(int type, String user, String message) {
+		chatFrame.appendText(type, user, message);
+		
+	}
+	@Override
+	public void update() {
+		chatFrame.update();
+		
+	}
 }
 
 class ChatFrame extends ResizableFrame {
@@ -84,8 +103,10 @@ class ChatFrame extends ResizableFrame {
 	private final TextArea textArea;
 	private final EditField editField;
 	private final ScrollPane scrollPane;
+	ICallbacks.visualizerCBs callbacks;
 	
-	public ChatFrame() {
+	public ChatFrame(ICallbacks.visualizerCBs cbs) {
+		callbacks = cbs;
 		setTitle("Chat");
 		
 		this.sb = new StringBuilder();
@@ -96,15 +117,9 @@ class ChatFrame extends ResizableFrame {
 		editField.addCallback(new EditField.Callback() {
 			public void callback(int key) {
 				if(key == Event.KEY_RETURN) {
-					appendText(editField.getText());
+					callbacks.sendChat(editField.getText());
 					editField.setText("");
 				}
-			}
-		});
-		
-		textArea.addCallback(new TextArea.Callback() {
-			public void handleLinkClicked(String href) {
-				Sys.openURL(href);
 			}
 		});
 		
@@ -119,7 +134,9 @@ class ChatFrame extends ResizableFrame {
 		add(chatBox);
 	}
 	
-	private void appendText(String text){
+	public void appendText(int type, String username, String text){
+		text = username + ": " + text;
+		sb.append("<div style=\"word-wrap: break-word;\">");
 		for(int i=0,l=text.length() ; i<l ; i++) {
 			char ch = text.charAt(i);
 			switch(ch) {
@@ -130,13 +147,17 @@ class ChatFrame extends ResizableFrame {
 				default: sb.append(ch);
 			}
 		}
-		boolean isAtEnd = scrollPane.getMaxScrollPosY() == scrollPane.getScrollPositionY();
+		sb.append("</div>");
 		textAreaModel.setHtml(sb.toString());
+		boolean isAtEnd = scrollPane.getMaxScrollPosY() == scrollPane.getScrollPositionY();
 		
 		if(isAtEnd) {
 			scrollPane.validateLayout();
 			scrollPane.setScrollPositionY(scrollPane.getMaxScrollPosY());
 		}
 	}
-
+	
+	public void update(){
+		textAreaModel.setHtml(sb.toString());
+	}
 }

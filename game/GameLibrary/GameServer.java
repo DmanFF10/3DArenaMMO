@@ -1,10 +1,6 @@
 package GameLibrary;
 
 import java.util.ArrayList;
-
-import org.lwjgl.util.vector.Vector3f;
-
-import GameLibrary.util.Consts;
 import GameLibrary.util.Loader;
 
 /*
@@ -30,7 +26,14 @@ public class GameServer {
 	}
 	
 	public void addPlayer(int id, String username){
-		players.add(new Player(id, username));
+		while(players.size() <= id){
+			players.add(null);
+		}
+		players.set(id ,new Player(id, username));
+	}
+	
+	public int playerSize(){
+		return players.size();
 	}
 	
 	/*public void updateUnit(int id, long time, Vector3f movement, Vector3f rotation){

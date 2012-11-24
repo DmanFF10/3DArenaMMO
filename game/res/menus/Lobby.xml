@@ -73,13 +73,21 @@
         <param name="maxHeight"><int>0</int></param>
         <param name="inputMap"><inputMap>-defaultInputMap</inputMap></param>
     </theme>
-
     
     <theme name="label" ref="-defaults" allowWildcard="true" />
         
     <theme name="panel" ref="-defaults">
         <param name="background"><image>box.panel.trans.blue</image></param>
     </theme>
+    
+    <theme name="tooltipwindow" ref="-defaults">
+	    <param name="background"><image>box.background</image></param>
+	    <param name="border"><border>3</border></param>
+	    <param name="fadeInTime"><int>1000</int></param>
+	    <theme name="label" ref="-defaults"/>
+    </theme>
+    
+    <!-- COSTOMIZED DATA -->
     
     <theme name="button" ref="-defaults">
         <param name="background"><image>button.background</image></param>
@@ -97,37 +105,6 @@
         <param name="cursor"><image>editfield.cursor</image></param>
         <param name="selection"><image>editfield.selection</image></param>
         <theme name="renderer" ref="-defaults"/>
-    </theme>
-    
-    <theme name="vscrollbar" ref="-defaults">
-        <theme name="upbutton" ref="button">
-            <param name="background"><image>scrollButton.background</image></param>
-        </theme>
-        <theme name="downbutton" ref="button">
-            <param name="background"><image>scrollButton.background</image></param>
-        </theme>
-        <theme name="thumb" ref="-defaults">
-            <param name="background"><image>scrollButton.background</image></param>
-            <param name="overlay"><image>vscrollbar.thumb</image></param>
-        </theme>
-        <param name="scaleThumb"><bool>true</bool></param>
-        <param name="background"><image>box</image></param>
-    </theme>
-    
-    <theme name="hscrollbar" ref="-defaults" allowWildcard="true">
-        <theme name="leftbutton" ref="-defaults"/>
-        <theme name="rightbutton" ref="-defaults"/>
-        <theme name="thumb" ref="-defaults"/>
-        <param name="scaleThumb"><bool>false</bool></param>
-    </theme>
-    
-    <theme name="listbox" ref="-defaults">
-        <param name="background"><image>box.panel.trans.purple</image></param>
-        <param name="border"><border>10,5</border></param>
-        <theme name="display" ref="label">
-            <param name="background"><image>listbox.highlight</image></param>
-        </theme>
-        <theme name="vscrollbar" ref="vscrollbar"/>
     </theme>
     
     <theme name="resizableframe" ref="-defaults" allowWildcard="true">
@@ -156,6 +133,43 @@
 		<theme name="closeButton" ref="-defaults"/>
 		<theme name="resizeHandle" ref="-defaults"/>
 	</theme>
+    
+    <theme name="vscrollbar" ref="-defaults">
+        <theme name="upbutton" ref="button">
+            <param name="background"><image>scrollButton.background</image></param>
+        </theme>
+        <theme name="downbutton" ref="button">
+            <param name="background"><image>scrollButton.background</image></param>
+        </theme>
+        <theme name="thumb" ref="-defaults">
+            <param name="background"><image>scrollButton.background</image></param>
+            <param name="overlay"><image>vscrollbar.thumb</image></param>
+        </theme>
+        <param name="scaleThumb"><bool>true</bool></param>
+        <param name="background"><image>box</image></param>
+    </theme>
+    
+    <theme name="hscrollbar" ref="-defaults">
+        <theme name="leftbutton" ref="-defaults"/>
+        <theme name="rightbutton" ref="-defaults"/>
+        <theme name="thumb" ref="-defaults"/>
+        <param name="scaleThumb"><bool>false</bool></param>
+    </theme>
+    
+    <theme name="listbox" ref="-defaults">
+        <param name="background"><image>box.panel.trans.purple</image></param>
+        <param name="border"><border>10,5</border></param>
+        <param name="cellHeight"><int>1</int></param>
+        <param name="cellWidth"><int>1</int></param>
+        <param name="rowMajor"><bool>false</bool></param>
+        <param name="fixedCellWidth"><bool>true</bool></param>
+        <param name="fixedCellHeight"><bool>false</bool></param>
+        <param name="minDisplayedRows"><int>1</int></param>
+        <theme name="display" ref="label">
+            <param name="background"><image>listbox.highlight</image></param>
+        </theme>
+        <theme name="vscrollbar" ref="vscrollbar"/>
+    </theme>
 
 	<theme name="scrollpane" ref="-defaults" allowWildcard="true">
 		<theme name="hscrollbar" ref="hscrollbar"/>  <!-- not used -->
@@ -175,10 +189,12 @@
 		<param name="smallGap"><dimension>8,8</dimension></param>
 		<param name="mediumGap"><dimension>10,10</dimension></param>
 		<param name="largeGap"><dimension>15,15</dimension></param>
+		<param name="border"><border>20,5,5,5</border></param>
 		<param name="namedGaps"><map/></param>
 		<theme name="scrollpane" ref="scrollpane">
 			<param name="background"><image>box.panel.trans.purple</image></param>
 			<theme name="textarea" ref="-defaults">
+			    <param name="border"><border>10</border></param>
 				<param name="fonts"><map>
 					<param name="default"><font>normal</font></param>
 				</map></param>
@@ -190,17 +206,15 @@
 		</theme>
 	</theme>
     
-    <theme name="tooltipwindow" ref="-defaults">
-	    <param name="background"><image>box.background</image></param>
-	    <param name="border"><border>3</border></param>
-	    <param name="fadeInTime"><int>1000</int></param>
-	    <theme name="label" ref="-defaults"/>
-    </theme>
-    
-    <theme name="lobby" ref="resizableframe">
+    <theme name="lobby" ref="-defaults">
         <theme name="label" ref="label"/>
-        <theme name="textBox" ref="editfield"/>
+        <theme name="editfield" ref="editfield"/>
         <theme name="button" ref="button"/>
         <theme name="listbox" ref="listbox"/>
+        <theme name="chatframe" ref="resizableframe">
+            <theme name="content" ref="content">
+                <theme name="editfield" ref="editfield"/>
+            </theme>
+        </theme>
     </theme>
 </themes>

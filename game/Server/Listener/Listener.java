@@ -78,6 +78,7 @@ public class Listener {
 				Client person = clients.get(i);
 				// for each string in the array
 				for(String value : info){
+					Logger.log(Logger.DEBUG, "sending: " + value);
 					// packages message into bytes for transport
 					byte[] data = value.getBytes();
 					packet = new DatagramPacket(data, data.length, person.Address(), person.Port());

@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import org.lwjgl.util.vector.Vector3f;
 
 import Client.Listener.Listener;
-import Client.Manager.Callbacks.*;
+import Client.Manager.ICallbacks.*;
 import Client.Visualizer.Visualizer;
 import GameLibrary.*;
 import GameLibrary.util.*;
@@ -55,17 +55,26 @@ public class Manager {
 	}
 	
 	public void processCommand(Command data){
+		command = new ArrayList<String>();
 		switch(data.getCommandType()){
 			case Consts.TYPE_LOGIN_PASS:
 				if(game.getID() == Consts.DISCONNECTED){
 					game.setID(data.getID());
-					game.addPlayer(data.getUsername());
+					game.addPlayer(data.getID(), data.getUsername());
 					state = State.Lobby;
 					Logger.log(Logger.INFO, "Logged Into Server");
 				} else {
-					game.addPlayer(data.getUsername());
+					game.addPlayer(data.getID() ,data.getUsername());
 				}
 				break;
+			
+			case Consts.TYPE_MESSAGE:
+				String user = game.getPlayer(data.getID()).getUsername();
+				view.setChatMessage(data.getMessageType(), user, data.getMessage());
+				break;
+			
+			default:
+				Logger.log(Logger.WORNING, "command did not get processed");
 		}
 	}
 	
@@ -83,11 +92,9 @@ public class Manager {
 			}
 			
 			public void process(String data){
-				Logger.log(Logger.DEBUG, data);
 				if (Command.isEnd(data)){
 					command.add(data);
 					processCommand(Command.unpack(command));
-					command = new ArrayList<String>();
 				} else {
 					command.add(data);
 				}
@@ -109,6 +116,11 @@ public class Manager {
 				game.setName(username);
 				Command login = new Command(game.getID(), username, password);
 				sender.send(login.pack());
+			}
+			
+			public void sendChat(String message){
+				Command msg = new Command(game.getID(), Consts.MESSAGE_ALL, message);
+				sender.send(msg.pack());
 			}
 			
 			public void requestMove(Vector3f direction, Vector3f rotation){

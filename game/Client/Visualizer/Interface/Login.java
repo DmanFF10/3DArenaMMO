@@ -2,7 +2,7 @@ package Client.Visualizer.Interface;
 
 import org.lwjgl.opengl.Display;
 
-import Client.Manager.Callbacks;
+import Client.Manager.ICallbacks;
 
 import de.matthiasmann.twl.Button;
 import de.matthiasmann.twl.DialogLayout;
@@ -19,9 +19,9 @@ public class Login extends Widget {
 	final Label nameLabel = new Label("UserName:");
 	final Label passLabel = new Label("Password:");
 	final DialogLayout loginPanel = new DialogLayout();
-	Callbacks.visualizerCBs callbacks;
+	ICallbacks.visualizerCBs callbacks;
 	
-	public Login(Callbacks.visualizerCBs cbs) {
+	public Login(ICallbacks.visualizerCBs cbs) {
 		// sets callbacks
 		callbacks = cbs;
 		
@@ -30,39 +30,6 @@ public class Login extends Widget {
 		int width = Display.getWidth()/2;
 		// each objects sizes
 		int objWidth, objHeight;
-		
-		loginPanel.setTheme("login-panel");
-		
-		// buttons
-		/*objWidth = 65;
-		objHeight = 30;
-		loginButton.setTheme("button");
-		loginButton.setSize(objWidth, objHeight);
-		loginButton.setPosition(width-(objWidth/2), height+(objHeight*2));
-		
-		// textboxes
-		objWidth = 150;
-		objHeight = 20;
-		nameTextBox.setTheme("textBox");
-		nameTextBox.setSize(objWidth, objHeight);
-		nameTextBox.setPosition(width-(objWidth/2), (int)(height-(objHeight*1.5)));
-		
-		passTextBox.setTheme("textBox");
-		passTextBox.setSize(objWidth, objHeight);
-		passTextBox.setPosition(width-(objWidth/2), height);
-		passTextBox.setPasswordMasking(true);
-		
-		// labels
-		objWidth = 5*nameLabel.getText().length();
-		nameLabel.setTheme("label");
-		nameLabel.setPosition(nameTextBox.getX()-(objWidth+nameTextBox.getWidth()/4),
-		nameTextBox.getY()+(nameTextBox.getHeight()/2));
-		
-		objWidth = 5*passLabel.getText().length();
-		passLabel.setTheme("label");
-		passLabel.setPosition(passTextBox.getX()-(objWidth+(passTextBox.getWidth()/4)),
-		passTextBox.getY()+(passTextBox.getHeight()/2));
-		*/
 		
 		// event listeners
 		nameTextBox.addCallback(new Callback() {
@@ -76,7 +43,7 @@ public class Login extends Widget {
 		passTextBox.addCallback(new Callback(){
 			public void callback(int key){
 				if(key == Event.KEY_RETURN){
-					loginButton.requestKeyboardFocus();
+					callbacks.connect(nameTextBox.getText(), passTextBox.getText());
 				}
 			}
 		});
@@ -87,12 +54,26 @@ public class Login extends Widget {
             }
         });
 		
-		DialogLayout.Group verticalGroup = loginPanel.createSequentialGroup()
+
+
+		DialogLayout.Group hLabels = loginPanel.createParallelGroup(nameLabel, passLabel);
+		DialogLayout.Group hTextBoxs = loginPanel.createParallelGroup(nameTextBox, passTextBox);
+		DialogLayout.Group hButton = loginPanel.createSequentialGroup().addGap().addWidget(loginButton);
+
+		loginPanel.setHorizontalGroup(loginPanel.createParallelGroup()
+				.addGroup(loginPanel.createSequentialGroup(hLabels, hTextBoxs))
+				.addGroup(hButton));
+
+		loginPanel.setVerticalGroup(loginPanel.createSequentialGroup()
 				.addGroup(loginPanel.createParallelGroup(nameLabel, nameTextBox))
 				.addGroup(loginPanel.createParallelGroup(passLabel, passTextBox))
-				.addWidget(loginButton);
+				.addWidget(loginButton));
 		
-		loginPanel.setVerticalGroup(verticalGroup);
+		objWidth = width/2;
+		objHeight = 90;
+		loginPanel.setTheme("login-panel");
+		loginPanel.setSize(objWidth, objHeight);
+		loginPanel.setPosition(width-(objWidth/2), height-(objHeight/2));
 		
 		add(loginPanel);
 	}

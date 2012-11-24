@@ -1,16 +1,22 @@
 package GameLibrary;
 import java.util.ArrayList;
 
-import GameLibrary.util.Consts;
 import GameLibrary.util.Logger;
 
 public class Command {
-	private int id, commandType;
-	private String username, password;
+	private int id, commandType, messageType;
+	private String username, password, message;
 	
 	public Command(int id){
 		this.id = id;
 		this.commandType = Consts.TYPE_LOGOUT;
+	}
+	
+	public Command(int id, int messageType, String message){
+		this.id = id;
+		this.commandType = Consts.TYPE_MESSAGE;
+		this.messageType = messageType;
+		this.message = message;
 	}
 	
 	public Command(int id, String username){
@@ -33,12 +39,20 @@ public class Command {
 		return commandType;
 	}
 	
+	public int getMessageType(){
+		return messageType;
+	}
+	
 	public String getUsername(){
 		return username;
 	}
 	
 	public String getPassword(){
 		return password;
+	}
+	
+	public String getMessage(){
+		return message;
 	}
 	
 	public ArrayList<String> pack(){
@@ -61,13 +75,21 @@ public class Command {
 				data.add(id() + username);
 				data.add(end());
 				break;
+				
+			case Consts.TYPE_MESSAGE:
+				data.add(begin());
+				data.add(type());
+				data.add(id() + messageType);
+				data.add(id() + message);
+				data.add(end());
+				break;
 		}
 		return data;
 	}
 	
 	public static Command unpack(ArrayList<String> data){
 		Command cmd = null;
-		int id, type;
+		int id, type, messageType;
 		try{
 			if (split(data.get(0))[1].equals(Consts.PACK_BEGIN)){
 				type = Integer.parseInt(split(data.get(1))[1]);
@@ -79,6 +101,14 @@ public class Command {
 						cmd = new Command(id, username);
 						break;
 					
+					case Consts.TYPE_MESSAGE:
+						String[] mtype = split(data.get(2));
+						String message = split(data.get(3))[1];
+						id = Integer.parseInt(mtype[0]);
+						messageType = Integer.parseInt(mtype[1]);
+						cmd = new Command(id, messageType, message);
+						break;
+						
 					case Consts.TYPE_LOGOUT:
 						id = Integer.parseInt(split(data.get(2))[0]);
 						cmd = new Command(id);
@@ -100,7 +130,7 @@ public class Command {
 	}
 	
 	private String type(){
-		return id + Consts.PACK_SPLITER + Consts.TYPE_LOGIN_PASS;
+		return id + Consts.PACK_SPLITER + getCommandType();
 	}
 	
 	private String end(){

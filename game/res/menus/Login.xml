@@ -73,23 +73,21 @@
         <param name="maxHeight"><int>0</int></param>
         <param name="inputMap"><inputMap>-defaultInputMap</inputMap></param>
     </theme>
-
     
     <theme name="label" ref="-defaults" allowWildcard="true"/>
         
     <theme name="panel" ref="-defaults">
         <param name="background"><image>box.panel.trans.purple</image></param>
     </theme>
-    <theme name="login-panel" ref="panel">
-        <param name="defaultGap"><dimension>5,5</dimension></param>
-        <param name="smallGap"><dimension>8,8</dimension></param>
-        <param name="mediumGap"><dimension>10,10</dimension></param>
-        <param name="largeGap"><dimension>15,15</dimension></param>
-        <param name="namedGaps">
-            <map>
-            </map>
-        </param>
+    
+    <theme name="tooltipwindow" ref="-defaults">
+	    <param name="background"><image>box.background</image></param>
+	    <param name="border"><border>3</border></param>
+	    <param name="fadeInTime"><int>1000</int></param>
+	    <theme name="label" ref="-defaults"/>
     </theme>
+    
+    <!-- COSTOMIZED DATA -->
     
     <theme name="button" ref="-defaults">
         <param name="background"><image>button.background</image></param>
@@ -108,19 +106,21 @@
         <param name="selection"><image>editfield.selection</image></param>
         <theme name="renderer" ref="-defaults"/>
     </theme>
-
     
-    <theme name="tooltipwindow" ref="-defaults">
-	    <param name="background"><image>box.background</image></param>
-	    <param name="border"><border>3</border></param>
-	    <param name="fadeInTime"><int>1000</int></param>
-	    <theme name="label" ref="-defaults"/>
+    <theme name="login-panel" ref="panel">
+        <param name="defaultGap"><dimension>5,5</dimension></param>
+        <param name="smallGap"><dimension>8,8</dimension></param>
+        <param name="mediumGap"><dimension>10,10</dimension></param>
+        <param name="largeGap"><dimension>15,15</dimension></param>
+        <param name="namedGaps"><map></map></param>
+        <param name="border"><border>10</border></param>
     </theme>
     
     <theme name="login" ref="-defaults">
-        <theme name="button" ref="button"/>
-        <theme name="label" ref="label"/>
-        <theme name="textBox" ref="editfield"/>
-        <theme name="login-panel" ref="-defaults"/>
+        <theme name="login-panel" ref="login-panel">
+            <theme name="button" ref="button"/>
+        	<theme name="label" ref="label"/>
+        	<theme name="editfield" ref="editfield"/>
+        </theme>
     </theme>
 </themes>

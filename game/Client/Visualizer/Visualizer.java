@@ -1,40 +1,30 @@
 package Client.Visualizer;
 
-import java.io.File;
 
-import org.lwjgl.*;
 import static org.lwjgl.opengl.GL11.*;
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.*;
-import org.lwjgl.util.vector.Vector3f;
 
 import de.matthiasmann.twl.GUI;
 import de.matthiasmann.twl.Widget;
-import de.matthiasmann.twl.renderer.lwjgl.LWJGLRenderer;
-import de.matthiasmann.twl.theme.ThemeManager;
 
-import Client.Manager.Callbacks;
+import Client.Manager.ICallbacks;
 import Client.Manager.Properties;
 import Client.Visualizer.Interface.*;
 import Client.Visualizer.util.*;
 import GameLibrary.*;
 import GameLibrary.Character;
-import GameLibrary.Graphics.*;
-import GameLibrary.util.Consts;
 import GameLibrary.util.Logger;
-import static org.lwjgl.util.glu.GLU.gluPerspective;
 
 /*
  * displays the graphics
  */
 
-public class Visualizer extends Thread {
+public class Visualizer extends Thread implements IVisualizer {
 	// properties
 	private Properties properties = new Properties();
 
 	// callbacks
-	private Callbacks.visualizerCBs cbs;
+	private ICallbacks.visualizerCBs cbs;
 
 	// time
 	private long lastFrame = Time.getTime();
@@ -52,7 +42,7 @@ public class Visualizer extends Thread {
 	private GUI gui;
 	
 
-	public Visualizer(Callbacks.visualizerCBs	cbs){
+	public Visualizer(ICallbacks.visualizerCBs	cbs){
 		// set callbacks
 		this.cbs = cbs;
 	}
@@ -86,9 +76,6 @@ public class Visualizer extends Thread {
 					loadmenus(Consts.GUI_LOGIN);
 					currentUI = Consts.GUI_LOGIN;
 				}
-				LWJGL.enable2D();
-				gui.update();
-				LWJGL.disable2D();
 				break;
 			
 			case Lobby:
@@ -96,11 +83,14 @@ public class Visualizer extends Thread {
 					loadmenus(Consts.GUI_LOBBY);
 					currentUI = Consts.GUI_LOBBY;
 				}
-				LWJGL.enable2D();
-				gui.update();
-				LWJGL.disable2D();
+				((Lobby)gui.getChild(0)).update();
+				
 				break;
 		}
+		
+		LWJGL.enable2D();
+		gui.update();
+		LWJGL.disable2D();
 		
 		// draws data to the screen
 		Display.update();
@@ -259,14 +249,21 @@ public class Visualizer extends Thread {
 		fpscount += delta;
 	}*/
 	
-	public void loadmenus(int menu){
+	private void loadmenus(int menu){
 		switch(menu){
 			case Consts.GUI_LOGIN:
 				gui = Interface.createGUI(new Login(cbs), "Login");
 				break;
 			case Consts.GUI_LOBBY:
-				gui = Interface.createGUI(new Lobby(), "Lobby");
+				gui = Interface.createGUI(new Lobby(cbs), "Lobby");
 				break;
+		}
+	}
+
+	public void setChatMessage(int type, String user, String message) {
+		if (currentUI == Consts.GUI_LOBBY){
+			Lobby lobby = (Lobby)gui.getChild(0);
+			lobby.appendText(type, user, message);
 		}
 	}
 }

@@ -4,7 +4,6 @@ import java.net.DatagramPacket;
 import java.util.ArrayList;
 
 import GameLibrary.*;
-import GameLibrary.util.Consts;
 import GameLibrary.util.Logger;
 import Server.Listener.Client;
 import Server.Listener.Listener;
@@ -43,12 +42,19 @@ public class Manager {
 	    		game.addPlayer(data.getID(), data.getUsername());
 	    		// broadcast to everyone that a new player has joined
 	    		sender.broadcast(data.pack());
+	    		// sends all the players currently active to the newly connected client
+	    		for (int i = 0; i<game.playerSize(); i++){
+	    			sender.send(new Command(i, game.getPlayer(i).getUsername()).pack(), data.getID());
+	    		}
 	    		break;	
 			
 			case Consts.TYPE_LOGOUT:
 				break;
 				
 			case Consts.TYPE_MESSAGE:
+				if (data.getMessageType() == Consts.MESSAGE_ALL){
+					sender.broadcast(data.pack());
+				}
 				break;
 		}
 	}
@@ -61,7 +67,7 @@ public class Manager {
 			}
 			
 			public void process(DatagramPacket data){
-				String string = new String(data.getData());
+				String string = new String(data.getData()).trim();
 				String[] values = string.split(Consts.PACK_SPLITER);
 				try{
 					int id = Integer.parseInt(values[0]);
@@ -74,16 +80,14 @@ public class Manager {
 						// creates a new object with the clients new id
 						Command cmd = new Command(sender.clients.size()-1, username);
 						Logger.log(Logger.INFO, "User " + username + " has logged in with the id of: " + cmd.getID());
-						Logger.log(Logger.INFO, "seting up message space");
 						messages.add(new ArrayList<String>());
 						// sends package to be utilized by the game
 						processCommand(cmd);
 					
 					} else if (Command.isEnd(string)){
-						ArrayList<String> command = messages.get(id);
-						command.add(string);
-						processCommand(Command.unpack(command));
-						command = new ArrayList<String>();
+						messages.get(id).add(string);
+						processCommand(Command.unpack(messages.get(id)));
+						messages.set(id, new ArrayList<String>());
 					} else {
 						messages.get(id).add(string);
 					}

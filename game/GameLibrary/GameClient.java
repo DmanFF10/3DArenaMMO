@@ -2,7 +2,6 @@ package GameLibrary;
 
 import java.util.ArrayList;
 
-import GameLibrary.util.Consts;
 
 /*
  * were all the magic happens for the client
@@ -40,8 +39,15 @@ public class GameClient {
 		}
 	}
 	
-	public void addPlayer(String username){
-		players.add(new Player(players.size(), username));
+	public void addPlayer(int id, String username){
+		while(players.size() <= id){
+			players.add(null);
+		}
+		players.set(id ,new Player(id, username));
+	}
+	
+	public Player getPlayer(int id){
+		return players.get(id);
 	}
 	
 	public int playerSize(){

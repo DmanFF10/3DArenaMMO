@@ -5,7 +5,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.ArrayList;
 
-import Client.Manager.Callbacks;
+import Client.Manager.ICallbacks;
 import GameLibrary.util.Logger;
 
 
@@ -22,10 +22,10 @@ public class Listener extends Thread {
 	
 	private int port;
 	private InetAddress address;
-	private Callbacks.listenerCBs cbs;
+	private ICallbacks.listenerCBs cbs;
 	private DatagramSocket client;
 	
-	public Listener(String address, int port, Callbacks.listenerCBs cbs){
+	public Listener(String address, int port, ICallbacks.listenerCBs cbs){
 		this.port = port;
 		this.cbs = cbs;
 		try {
@@ -46,7 +46,7 @@ public class Listener extends Thread {
 		    try{
 		    	// receives package and process
 		    	client.receive(packet);
-		    	cbs.process(new String(packet.getData()));
+		    	cbs.process(new String(packet.getData()).trim());
 		    	data = new byte[512];
 		    	packet.setData(data);
 		    	
