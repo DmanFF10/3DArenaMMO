@@ -32,6 +32,21 @@ public class GameServer {
 		players.set(id ,new Player(id, username));
 	}
 	
+	public int getNewPlayerID(){
+		int index = players.size();
+		for (int i=0; i<players.size(); i++){
+			if (players.get(i) == null){
+				index = i;
+				break;
+			}
+		}
+		return index;
+	}
+	
+	public void removePlayer(int id){
+		players.set(id, null);
+	}
+	
 	public int playerSize(){
 		return players.size();
 	}

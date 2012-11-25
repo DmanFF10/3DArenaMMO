@@ -11,6 +11,7 @@ import java.util.ArrayList;
 public class GameClient {
 
 	private ArrayList<Player> players = new ArrayList<Player>();
+	private ArrayList<String[]> chat =new ArrayList<String[]>();
 	private int id;
 	public Map map = new Map();
 	
@@ -46,12 +47,33 @@ public class GameClient {
 		players.set(id ,new Player(id, username));
 	}
 	
+	public void removePlayer(int id){
+		players.set(id, null);
+	}
+	
 	public Player getPlayer(int id){
 		return players.get(id);
 	}
 	
+	public ArrayList<String> getUsernames(){
+		ArrayList<String> list = new ArrayList<String>();
+		for (int i=0; i<players.size(); i++){
+			if (players.get(i) != null)
+				list.add(players.get(i).getUsername());
+		}
+		return list;
+	}
+	
 	public int playerSize(){
 		return players.size();
+	}
+	
+	public ArrayList<String[]> getChat(){
+		return chat;
+	}
+	
+	public void addChat(int id, String message){
+		chat.add(new String[]{players.get(id).getUsername(), message});
 	}
 	
 	/*public void updateUnits(int delta){

@@ -2,6 +2,9 @@ package Client.Visualizer;
 
 
 import static org.lwjgl.opengl.GL11.*;
+
+import java.util.ArrayList;
+
 import org.lwjgl.opengl.*;
 
 import de.matthiasmann.twl.GUI;
@@ -19,7 +22,7 @@ import GameLibrary.util.Logger;
  * displays the graphics
  */
 
-public class Visualizer extends Thread implements IVisualizer {
+public class Visualizer extends Thread {
 	// properties
 	private Properties properties = new Properties();
 
@@ -83,8 +86,12 @@ public class Visualizer extends Thread implements IVisualizer {
 					loadmenus(Consts.GUI_LOBBY);
 					currentUI = Consts.GUI_LOBBY;
 				}
-				((Lobby)gui.getChild(0)).update();
-				
+				if (cbs.updated() == true){
+					ArrayList<String[]> chat = cbs.game().getChat();
+					ArrayList<String> users = cbs.game().getUsernames();
+					((Lobby)gui.getChild(0)).update(users, chat);
+					cbs.finishedUpdating();
+				}
 				break;
 		}
 		
@@ -257,13 +264,6 @@ public class Visualizer extends Thread implements IVisualizer {
 			case Consts.GUI_LOBBY:
 				gui = Interface.createGUI(new Lobby(cbs), "Lobby");
 				break;
-		}
-	}
-
-	public void setChatMessage(int type, String user, String message) {
-		if (currentUI == Consts.GUI_LOBBY){
-			Lobby lobby = (Lobby)gui.getChild(0);
-			lobby.appendText(type, user, message);
 		}
 	}
 }

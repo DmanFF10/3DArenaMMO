@@ -51,10 +51,8 @@ public class Listener extends Thread {
 		    	packet.setData(data);
 		    	
 		    }catch(Exception e){}
-		    
 		}
-		Logger.log(Logger.INFO, "Ending listener operations"); 
-		
+		Logger.log(Logger.INFO, "Ending listener operations");
 	}
 	
 	public void send(ArrayList<String> info){

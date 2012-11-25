@@ -159,8 +159,8 @@
     <theme name="listbox" ref="-defaults">
         <param name="background"><image>box.panel.trans.purple</image></param>
         <param name="border"><border>10,5</border></param>
-        <param name="cellHeight"><int>1</int></param>
-        <param name="cellWidth"><int>1</int></param>
+        <param name="cellHeight"><int>20</int></param>
+        <param name="cellWidth"><int>120</int></param>
         <param name="rowMajor"><bool>false</bool></param>
         <param name="fixedCellWidth"><bool>true</bool></param>
         <param name="fixedCellHeight"><bool>false</bool></param>

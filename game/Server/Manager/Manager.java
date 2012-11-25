@@ -34,9 +34,20 @@ public class Manager {
 		sender.Start();
 	}
 	
+	private void addMessage(int id){
+		while(messages.size() <= id){
+			messages.add(null);
+		}
+		messages.set(id ,new ArrayList<String>());
+	}
+	
+	public void removeMessage(int id){
+		messages.set(id, null);
+	}
+	
 	public void processCommand(Command data){
+		int id;
 		switch(data.getCommandType()){
-	    	
 			case Consts.TYPE_LOGIN_PASS:
 				// add a new character to the game
 	    		game.addPlayer(data.getID(), data.getUsername());
@@ -49,6 +60,12 @@ public class Manager {
 	    		break;	
 			
 			case Consts.TYPE_LOGOUT:
+				id = data.getID();
+				sender.broadcast(data.pack());
+				Logger.log(Logger.INFO, "User " + game.getPlayer(id).getUsername() + " has logged off");
+				removeMessage(id);
+				game.removePlayer(id);
+				sender.removeClient(id);
 				break;
 				
 			case Consts.TYPE_MESSAGE:
@@ -75,12 +92,13 @@ public class Manager {
 						String username = values[1];
 						//TODO: make the password usefull
 						String password = values[2];
+						int newID = game.getNewPlayerID();
 						// if not a connected user add to clients
-						sender.clients.add(new Client(data.getAddress(), data.getPort()));
+						sender.addClient(newID, new Client(data.getAddress(), data.getPort()));
 						// creates a new object with the clients new id
-						Command cmd = new Command(sender.clients.size()-1, username);
+						Command cmd = new Command(newID, username);
 						Logger.log(Logger.INFO, "User " + username + " has logged in with the id of: " + cmd.getID());
-						messages.add(new ArrayList<String>());
+						addMessage(newID);
 						// sends package to be utilized by the game
 						processCommand(cmd);
 					

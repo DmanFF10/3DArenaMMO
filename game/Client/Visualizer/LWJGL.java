@@ -40,7 +40,7 @@ public class LWJGL {
 		try {
 			// create the rendering window
 			Display.setDisplayMode(toggleFullscreen(fullscreen));
-			Display.setTitle("Arena Graphics Test");
+			Display.setTitle("Epic Online");
 			Display.create();
 		} catch (LWJGLException e) {
 			// log error and end the program

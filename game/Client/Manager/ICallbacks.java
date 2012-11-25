@@ -18,7 +18,10 @@ public class ICallbacks {
 	// callback for the visualizer class
 	public interface visualizerCBs{
 		void endLive();
+		boolean updated();
+		void finishedUpdating();
 		void connect(String name, String password);
+		void logout();
 		void sendChat(String message);
 		void requestMove(Vector3f direction, Vector3f rotation);
 		Manager.State state();

@@ -1,6 +1,7 @@
 package Client.Visualizer.Interface;
 
+import java.util.ArrayList;
+
 public interface ILobby {
-	void appendText(int type, String user, String message);
-	void update();
+	void update(ArrayList<String> usernames, ArrayList<String[]> chat);
 }

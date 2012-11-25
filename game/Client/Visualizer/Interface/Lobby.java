@@ -1,5 +1,7 @@
 package Client.Visualizer.Interface;
 
+import java.util.ArrayList;
+
 import org.lwjgl.opengl.Display;
 
 import Client.Manager.ICallbacks;
@@ -8,12 +10,15 @@ import de.matthiasmann.twl.Button;
 import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.EditField;
 import de.matthiasmann.twl.Event;
+import de.matthiasmann.twl.Label;
 import de.matthiasmann.twl.ListBox;
 import de.matthiasmann.twl.ResizableFrame;
 import de.matthiasmann.twl.ScrollPane;
 import de.matthiasmann.twl.TextArea;
 import de.matthiasmann.twl.Widget;
+import de.matthiasmann.twl.model.SimpleChangableListModel;
 import de.matthiasmann.twl.textarea.HTMLTextAreaModel;
+import de.matthiasmann.twl.textarea.SimpleTextAreaModel;
 
 public class Lobby extends Widget implements ILobby{
 	
@@ -23,11 +28,13 @@ public class Lobby extends Widget implements ILobby{
 	final Button storeButton = new Button("Store");
 	final Button newsButton = new Button("News");
 	final Button playButton = new Button("Play");
-	@SuppressWarnings("rawtypes")
-	final ListBox playersListBox = new ListBox();
+	final ListBox<String> playersListBox = new ListBox<String>();
+	SimpleChangableListModel<String> sclm = new SimpleChangableListModel<String>();
 	final ChatFrame chatFrame;
+	ICallbacks.visualizerCBs callbacks;
 	
 	public Lobby(ICallbacks.visualizerCBs cbs){
+		callbacks = cbs;
 		chatFrame = new ChatFrame(cbs);
 		// display size
 		int height = Display.getHeight();
@@ -61,20 +68,21 @@ public class Lobby extends Widget implements ILobby{
 		playButton.setSize(objWidth, objHeight);
 		playButton.setPosition(width-((objWidth+15)*6), 0);
 		
-		playButton.addCallback(new Runnable() {
-            public void run() {
-                chatFrame.appendText(1, "just wondering", "i did it!!");
-            }
-        });
-		
 		objWidth = width/4;
 		objHeight = height-45;
 		playersListBox.setTheme("listbox");
 		playersListBox.setSize(objWidth, objHeight);
 		playersListBox.setPosition(width-(objWidth+15), 35);
+		playersListBox.setModel(sclm);
 		
 		chatFrame.setSize(300, 300);
 		chatFrame.setPosition(0, height-(chatFrame.getHeight()));
+		
+		logoutButton.addCallback(new Runnable() {
+            public void run() {
+            	callbacks.logout();
+            }
+        });
 		
 		add(logoutButton);
 		add(settingsButton);
@@ -86,20 +94,17 @@ public class Lobby extends Widget implements ILobby{
 		add(chatFrame);
 	}
 	@Override
-	public void appendText(int type, String user, String message) {
-		chatFrame.appendText(type, user, message);
-		
-	}
-	@Override
-	public void update() {
-		chatFrame.update();
+	public void update(ArrayList<String> usernames, ArrayList<String[]> chat) {
+		chatFrame.update(chat);
+		sclm.clear();
+		sclm.addElements(usernames);
 		
 	}
 }
 
 class ChatFrame extends ResizableFrame {
 	private final StringBuilder sb;
-	private final HTMLTextAreaModel textAreaModel;
+	private final SimpleTextAreaModel textAreaModel;
 	private final TextArea textArea;
 	private final EditField editField;
 	private final ScrollPane scrollPane;
@@ -110,7 +115,7 @@ class ChatFrame extends ResizableFrame {
 		setTitle("Chat");
 		
 		this.sb = new StringBuilder();
-		this.textAreaModel = new HTMLTextAreaModel();
+		this.textAreaModel = new SimpleTextAreaModel();
 		this.textArea = new TextArea(textAreaModel);
 		this.editField = new EditField();
 		
@@ -134,30 +139,17 @@ class ChatFrame extends ResizableFrame {
 		add(chatBox);
 	}
 	
-	public void appendText(int type, String username, String text){
-		text = username + ": " + text;
-		sb.append("<div style=\"word-wrap: break-word;\">");
-		for(int i=0,l=text.length() ; i<l ; i++) {
-			char ch = text.charAt(i);
-			switch(ch) {
-				case '<': sb.append("&lt;"); break;
-				case '>': sb.append("&gt;"); break;
-				case '&': sb.append("&amp;"); break;
-				case '"': sb.append("&quot;"); break;
-				default: sb.append(ch);
-			}
+	public void update(ArrayList<String[]> chat){
+		String chatString = new String();
+		for (String[] data : chat){
+			chatString += (data[0] + ": " + data[1]+ "\n");
 		}
-		sb.append("</div>");
-		textAreaModel.setHtml(sb.toString());
+		textAreaModel.setText(chatString);
 		boolean isAtEnd = scrollPane.getMaxScrollPosY() == scrollPane.getScrollPositionY();
 		
 		if(isAtEnd) {
 			scrollPane.validateLayout();
 			scrollPane.setScrollPositionY(scrollPane.getMaxScrollPosY());
 		}
-	}
-	
-	public void update(){
-		textAreaModel.setHtml(sb.toString());
 	}
 }

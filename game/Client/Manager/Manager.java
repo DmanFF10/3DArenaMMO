@@ -20,6 +20,9 @@ public class Manager {
 	private State state = State.Login;
 	
 	private boolean live = true;
+	private boolean updated = true;
+	
+	
 	private int port = 1234;
 	private String address = "127.0.0.1";
 	private GameClient game;
@@ -50,7 +53,7 @@ public class Manager {
 	
 	private void startGame(){
 		// Initialize game data container
-		Logger.log(Logger.INFO, "Setting up game");
+		Logger.log(Logger.INFO, "Initalizing new game instance");
 		game = new GameClient();
 	}
 	
@@ -69,13 +72,22 @@ public class Manager {
 				break;
 			
 			case Consts.TYPE_MESSAGE:
-				String user = game.getPlayer(data.getID()).getUsername();
-				view.setChatMessage(data.getMessageType(), user, data.getMessage());
+				game.addChat(data.getID(), data.getMessage());
+				break;
+			
+			case Consts.TYPE_LOGOUT:
+				if (data.getID() == game.getID()){
+					state = State.Login;
+					startGame();
+				} else {
+					game.removePlayer(data.getID());
+				}
 				break;
 			
 			default:
 				Logger.log(Logger.WORNING, "command did not get processed");
 		}
+		updated = true;
 	}
 	
 	private listenerCBs initCBs(){
@@ -112,10 +124,22 @@ public class Manager {
 				live = false;
 			}
 			
+			public boolean updated(){
+				return updated;
+			}
+			
+			public void finishedUpdating(){
+				updated = false;
+			}
+			
 			public void connect(String username, String password) {
 				game.setName(username);
 				Command login = new Command(game.getID(), username, password);
 				sender.send(login.pack());
+			}
+			
+			public void logout(){
+				sender.send(new Command(game.getID()).pack());
 			}
 			
 			public void sendChat(String message){

@@ -95,6 +95,8 @@ public class Command {
 				type = Integer.parseInt(split(data.get(1))[1]);
 				switch(type){
 					case Consts.TYPE_LOGIN_PASS:
+						if (data.size() != 4)
+							throw new Exception();
 						String[] s = split(data.get(2));
 						id = Integer.parseInt(s[0]);
 						String username = s[1];
@@ -102,6 +104,8 @@ public class Command {
 						break;
 					
 					case Consts.TYPE_MESSAGE:
+						if (data.size() != 5)
+							throw new Exception();
 						String[] mtype = split(data.get(2));
 						String message = split(data.get(3))[1];
 						id = Integer.parseInt(mtype[0]);
@@ -110,13 +114,15 @@ public class Command {
 						break;
 						
 					case Consts.TYPE_LOGOUT:
+						if (data.size() != 3)
+							throw new Exception();
 						id = Integer.parseInt(split(data.get(2))[0]);
 						cmd = new Command(id);
 						break;
 				}
 			}
 		}catch(Exception e){
-			Logger.log(Logger.WORNING, "could not unpack the command");
+			Logger.log(Logger.WORNING, "could not unpack the command  DATA: "+ data.toString());
 		}
 		return cmd;
 	}
@@ -147,9 +153,6 @@ public class Command {
 	
 	private static String[] split(String s){
 		String[] value = s.split(Consts.PACK_SPLITER);
-			for(int i = 0; i<value.length; i++){
-				value[i] = value[i].trim();
-			}
 		return value;
 	}
 }

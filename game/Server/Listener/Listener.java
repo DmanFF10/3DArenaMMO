@@ -5,6 +5,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.ArrayList;
 
+import GameLibrary.Player;
 import GameLibrary.util.Logger;
 import Server.Manager.Manager;
 import Server.Manager.Manager.listenerCBs;
@@ -17,7 +18,7 @@ public class Listener {
 
 	private DatagramSocket server;
 	private listenerCBs cbs;
-	public ArrayList<Client> clients = new ArrayList<Client>();
+	private ArrayList<Client> clients = new ArrayList<Client>();
 	
 	public Listener(int port, Manager.listenerCBs cbs){
 		this.cbs = cbs;
@@ -53,6 +54,17 @@ public class Listener {
 		}
 	}
 	
+	public void addClient(int id, Client client){
+		while(clients.size() <= id){
+			clients.add(null);
+		}
+		clients.set(id , client);
+	}
+	
+	public void removeClient(int id){
+		clients.set(id, null);
+	}
+	
 	public void send(ArrayList<String> info, int id){
 		try {
 			// gets client address and port and creates a packet with the data and location
@@ -78,7 +90,6 @@ public class Listener {
 				Client person = clients.get(i);
 				// for each string in the array
 				for(String value : info){
-					Logger.log(Logger.DEBUG, "sending: " + value);
 					// packages message into bytes for transport
 					byte[] data = value.getBytes();
 					packet = new DatagramPacket(data, data.length, person.Address(), person.Port());

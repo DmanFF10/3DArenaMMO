@@ -30,6 +30,8 @@ public class Login extends Widget {
 		int width = Display.getWidth()/2;
 		// each objects sizes
 		int objWidth, objHeight;
+	
+		passTextBox.setPasswordMasking(true);
 		
 		// event listeners
 		nameTextBox.addCallback(new Callback() {
@@ -42,7 +44,7 @@ public class Login extends Widget {
 		
 		passTextBox.addCallback(new Callback(){
 			public void callback(int key){
-				if(key == Event.KEY_RETURN){
+				if(key == Event.KEY_RETURN && test()){
 					callbacks.connect(nameTextBox.getText(), passTextBox.getText());
 				}
 			}
@@ -50,7 +52,9 @@ public class Login extends Widget {
 		
 		loginButton.addCallback(new Runnable() {
             public void run() {
-                callbacks.connect(nameTextBox.getText(), passTextBox.getText());
+            	if (test()){
+            		callbacks.connect(nameTextBox.getText(), passTextBox.getText());
+            	}
             }
         });
 		
@@ -76,5 +80,17 @@ public class Login extends Widget {
 		loginPanel.setPosition(width-(objWidth/2), height-(objHeight/2));
 		
 		add(loginPanel);
+	}
+	
+	private boolean test(){
+		if (nameTextBox.getText().equals("")){
+			nameTextBox.requestKeyboardFocus();
+			return false;
+		}
+		if (passTextBox.getText().equals("")){
+			passTextBox.requestKeyboardFocus();
+			return false;
+		}
+		return true;
 	}
 }
