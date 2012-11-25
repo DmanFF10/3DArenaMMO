@@ -16,9 +16,9 @@ Requires:
     	lwjgl.jar
     	lwjgl_util.jar
     
-    Slick http://slick.cokeandcode.com/
-    
     TWL - Themable Widget Library (and dependencies)
     	http://twl.l33tlabs.org/
+        TWL.jar
+        xpp3-1.1.4c.jar
 
 
