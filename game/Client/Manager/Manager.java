@@ -77,7 +77,7 @@ public class Manager {
 			
 			case Consts.TYPE_LOGOUT:
 				if (data.getID() == game.getID()){
-					Logger.log(Logger.DEBUG, "Logged out");
+					Logger.log(Logger.INFO, "Logged out");
 					state = State.Login;
 					startGame();
 				} else {

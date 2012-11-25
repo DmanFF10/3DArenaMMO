@@ -67,6 +67,7 @@ public class Command {
 				data.add(begin());
 				data.add(type());
 				data.add(end());
+				break;
 				
 			
 			case Consts.TYPE_LOGIN_PASS:
