@@ -9,7 +9,7 @@ public class Time {
 		return (Sys.getTime() * 1000) / Sys.getTimerResolution();
 	}
 	
-	private static int getDelta(long lastFrame){
+	public static int getDelta(long lastFrame){
 		// returns the time between frames (delta)
 		long currentTime = getTime();
 		int delta = (int) (currentTime - lastFrame);

@@ -5,7 +5,6 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.ArrayList;
 
-import GameLibrary.Player;
 import GameLibrary.util.Logger;
 import Server.Manager.Manager;
 import Server.Manager.Manager.listenerCBs;

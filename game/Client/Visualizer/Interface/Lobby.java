@@ -10,14 +10,12 @@ import de.matthiasmann.twl.Button;
 import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.EditField;
 import de.matthiasmann.twl.Event;
-import de.matthiasmann.twl.Label;
 import de.matthiasmann.twl.ListBox;
 import de.matthiasmann.twl.ResizableFrame;
 import de.matthiasmann.twl.ScrollPane;
 import de.matthiasmann.twl.TextArea;
 import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.SimpleChangableListModel;
-import de.matthiasmann.twl.textarea.HTMLTextAreaModel;
 import de.matthiasmann.twl.textarea.SimpleTextAreaModel;
 
 public class Lobby extends Widget implements ILobby{
@@ -103,7 +101,6 @@ public class Lobby extends Widget implements ILobby{
 }
 
 class ChatFrame extends ResizableFrame {
-	private final StringBuilder sb;
 	private final SimpleTextAreaModel textAreaModel;
 	private final TextArea textArea;
 	private final EditField editField;
@@ -113,15 +110,14 @@ class ChatFrame extends ResizableFrame {
 	public ChatFrame(ICallbacks.visualizerCBs cbs) {
 		callbacks = cbs;
 		setTitle("Chat");
-		
-		this.sb = new StringBuilder();
+
 		this.textAreaModel = new SimpleTextAreaModel();
 		this.textArea = new TextArea(textAreaModel);
 		this.editField = new EditField();
 		
 		editField.addCallback(new EditField.Callback() {
 			public void callback(int key) {
-				if(key == Event.KEY_RETURN) {
+				if(key == Event.KEY_RETURN && !editField.getText().equals("")) {
 					callbacks.sendChat(editField.getText());
 					editField.setText("");
 				}

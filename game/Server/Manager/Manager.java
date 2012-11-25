@@ -91,7 +91,7 @@ public class Manager {
 					if (id == Consts.DISCONNECTED){
 						String username = values[1];
 						//TODO: make the password usefull
-						String password = values[2];
+						//String password = values[2];
 						int newID = game.getNewPlayerID();
 						// if not a connected user add to clients
 						sender.addClient(newID, new Client(data.getAddress(), data.getPort()));

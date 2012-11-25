@@ -8,15 +8,12 @@ import java.util.ArrayList;
 import org.lwjgl.opengl.*;
 
 import de.matthiasmann.twl.GUI;
-import de.matthiasmann.twl.Widget;
 
 import Client.Manager.ICallbacks;
+import Client.Manager.Manager;
 import Client.Manager.Properties;
 import Client.Visualizer.Interface.*;
-import Client.Visualizer.util.*;
 import GameLibrary.*;
-import GameLibrary.Character;
-import GameLibrary.util.Logger;
 
 /*
  * displays the graphics
@@ -30,14 +27,14 @@ public class Visualizer extends Thread {
 	private ICallbacks.visualizerCBs cbs;
 
 	// time
-	private long lastFrame = Time.getTime();
-	private int delta, fps, fpscount;
+	//private long lastFrame = Time.getTime();
+	//private int delta, fps, fpscount;
 
 	// primary game objects
-	private Camera camera = new Camera();
-	private Character player;
-	private GameClient game;
-	private Map map;
+	//private Camera camera = new Camera();
+	//private Character player;
+	//private GameClient game;
+	//private Map map;
 
 	//inputs
 	boolean keyUp, keyDown, keyLeft, keyRight, mouseLeft, changed;
@@ -55,6 +52,11 @@ public class Visualizer extends Thread {
 			// main render loop
 			while(!Display.isCloseRequested()){
 				render();
+			}
+			
+			// tell the server to log you out
+			if (cbs.state() != Manager.State.Login){
+				cbs.logout();
 			}
 			// clean up memory after closing display
 			Display.destroy();
@@ -92,6 +94,9 @@ public class Visualizer extends Thread {
 					((Lobby)gui.getChild(0)).update(users, chat);
 					cbs.finishedUpdating();
 				}
+				break;
+			
+			case Game:
 				break;
 		}
 		
