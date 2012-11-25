@@ -1,4 +1,4 @@
-3DArenaMMO
+Epic Online
 ==========
 
 The goal of this project is to make a fun 3d MMO.
