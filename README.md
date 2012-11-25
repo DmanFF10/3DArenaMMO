@@ -4,7 +4,8 @@
 The goal of this project is to make a fun 3d MMO.
 
 Simple Discription:
-    Epic Online is a team focused MMO. It brings the best 
+    
+Epic Online is a team focused MMO. It brings the best 
 of the most popular game styles and combines them into 
 short, action packed scenarios.
 
