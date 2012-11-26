@@ -205,6 +205,15 @@
 			<theme name="editfield" ref="editfield" />	
 		</theme>
 	</theme>
+	
+	<theme name="debug-panel" ref="-defaults">
+        <param name="defaultGap"><dimension>5,5</dimension></param>
+        <param name="smallGap"><dimension>8,8</dimension></param>
+        <param name="mediumGap"><dimension>10,10</dimension></param>
+        <param name="largeGap"><dimension>15,15</dimension></param>
+        <param name="namedGaps"><map></map></param>
+        <param name="border"><border>10</border></param>
+    </theme>
     
     <theme name="lobby" ref="-defaults">
         <theme name="label" ref="label"/>
@@ -216,5 +225,9 @@
                 <theme name="editfield" ref="editfield"/>
             </theme>
         </theme>
+        <theme name="debug-panel" ref="debug-panel">
+            <theme name="label" ref="label" />
+        </theme>
     </theme>
+    
 </themes>

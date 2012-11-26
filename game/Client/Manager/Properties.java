@@ -9,8 +9,11 @@ import GameLibrary.util.Logger;
 
 public class Properties {
 	
-	public int width, height, frameCap;
-	public boolean fullscreen;
+	public int width, 
+				height,
+				frameCap;
+	public boolean fullscreen, 
+					 debugMode;
 	
 	public Properties(){
 		loadDefult();
@@ -24,6 +27,7 @@ public class Properties {
 		height = 600;
 		frameCap = 60;
 		fullscreen = false;
+		debugMode = true;
 	}
 	
 	private boolean loadProperties() {
@@ -45,12 +49,16 @@ public class Properties {
 		    	} else if(key.equals("frameCap")){
 		    		frameCap = Integer.valueOf(list[1]);
 		    	
-		    	}else if (key.equals("fullscreen")){
-		    		fullscreen = Boolean.getBoolean(list[1]);
+		    	} else if (key.equals("fullscreen")){
+		    		fullscreen = list[1].equals("true");
+		    	
+		    	} else if (key.equals("debugMode")){
+		    		debugMode = list[1].equals("true");
 		    	}
 		    }
 		    in.close();
 		} catch (Exception e) {
+			Logger.log(Logger.WORNING, "failed to load all of the properties. using defaults where needed");
 			return false;
 		}
 		return true;
@@ -67,6 +75,8 @@ public class Properties {
 			out.write("frameCap " + frameCap);
 			out.newLine();
 			out.write("fullscreen " + fullscreen);
+			out.newLine();
+			out.write("debugMode " + debugMode);
 			out.close();
 		}catch (Exception e) {
 			Logger.log(Logger.ERROR, "failed to write properties list");

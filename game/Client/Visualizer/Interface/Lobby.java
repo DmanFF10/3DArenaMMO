@@ -18,7 +18,7 @@ import de.matthiasmann.twl.Widget;
 import de.matthiasmann.twl.model.SimpleChangableListModel;
 import de.matthiasmann.twl.textarea.SimpleTextAreaModel;
 
-public class Lobby extends Widget implements ILobby{
+public class Lobby extends Widget {
 	
 	final Button logoutButton = new Button("Logout");
 	final Button settingsButton = new Button("Settings");
@@ -26,19 +26,23 @@ public class Lobby extends Widget implements ILobby{
 	final Button storeButton = new Button("Store");
 	final Button newsButton = new Button("News");
 	final Button playButton = new Button("Play");
+	final debugPanel debugPanel = new debugPanel();
+	final ChatFrame chatFrame;
 	final ListBox<String> playersListBox = new ListBox<String>();
 	SimpleChangableListModel<String> sclm = new SimpleChangableListModel<String>();
-	final ChatFrame chatFrame;
 	ICallbacks.visualizerCBs callbacks;
 	
-	public Lobby(ICallbacks.visualizerCBs cbs){
-		callbacks = cbs;
-		chatFrame = new ChatFrame(cbs);
+	public Lobby(ICallbacks.visualizerCBs cbs, boolean debugMode){
 		// display size
 		int height = Display.getHeight();
 		int width = Display.getWidth();
 		// each objects sizes
 		int objWidth, objHeight;
+		
+		callbacks = cbs;
+		chatFrame = new ChatFrame(cbs);
+		debugPanel.setVisible(debugMode);
+		debugPanel.setTheme("debug-panel");
 		
 		objWidth = 65;
 		objHeight = 30;
@@ -90,13 +94,14 @@ public class Lobby extends Widget implements ILobby{
 		add(playButton);
 		add(playersListBox);
 		add(chatFrame);
+		add(debugPanel);
 	}
-	@Override
-	public void update(ArrayList<String> usernames, ArrayList<String[]> chat) {
+
+	public void update(ArrayList<String> usernames, ArrayList<String[]> chat, int fps) {
 		chatFrame.update(chat);
 		sclm.clear();
 		sclm.addElements(usernames);
-		
+		debugPanel.update(fps, 0, 0, 0, 0, 0, 0);
 	}
 }
 

@@ -19,18 +19,19 @@ public class Login extends Widget {
 	final Label nameLabel = new Label("UserName:");
 	final Label passLabel = new Label("Password:");
 	final DialogLayout loginPanel = new DialogLayout();
+	final debugPanel debugPanel = new debugPanel();
 	ICallbacks.visualizerCBs callbacks;
 	
-	public Login(ICallbacks.visualizerCBs cbs) {
-		// sets callbacks
-		callbacks = cbs;
-		
+	public Login(ICallbacks.visualizerCBs cbs, boolean debugMode) {
 		// display size
 		int height = Display.getHeight()/2;
 		int width = Display.getWidth()/2;
 		// each objects sizes
 		int objWidth, objHeight;
 	
+		callbacks = cbs;
+		debugPanel.setVisible(debugMode);
+		debugPanel.setTheme("debug-panel");
 		passTextBox.setPasswordMasking(true);
 		
 		// event listeners
@@ -57,7 +58,6 @@ public class Login extends Widget {
             	}
             }
         });
-		
 
 
 		DialogLayout.Group hLabels = loginPanel.createParallelGroup(nameLabel, passLabel);
@@ -80,6 +80,11 @@ public class Login extends Widget {
 		loginPanel.setPosition(width-(objWidth/2), height-(objHeight/2));
 		
 		add(loginPanel);
+		add(debugPanel);
+	}
+	
+	public void update(int fps){
+		debugPanel.update(fps, 0, 0, 0, 0, 0, 0);
 	}
 	
 	private boolean test(){

@@ -18,8 +18,8 @@ public class ICallbacks {
 	// callback for the visualizer class
 	public interface visualizerCBs{
 		void endLive();
-		boolean updated();
-		void finishedUpdating();
+		boolean stateChanged();
+		void stateSet();
 		void connect(String name, String password);
 		void logout();
 		void sendChat(String message);

@@ -18,10 +18,9 @@ public class Manager {
 	}
 	
 	private State state = State.Login;
+	private boolean stateChanged = true;
 	
 	private boolean live = true;
-	private boolean updated = true;
-	
 	
 	private int port = 1234;
 	private String address = "127.0.0.1";
@@ -38,7 +37,7 @@ public class Manager {
 		startListener();
 	}
 	
-	public void startVisualizer(){
+	private void startVisualizer(){
 		// initialize the game view
 		view = new Visualizer(vizCBs());
 		Logger.log(Logger.INFO, "Starting graphical front end");
@@ -57,6 +56,11 @@ public class Manager {
 		game = new GameClient();
 	}
 	
+	private void changeState(Manager.State state){
+		this.state = state;
+		stateChanged = true;
+	}
+	
 	public void processCommand(Command data){
 		command = new ArrayList<String>();
 		switch(data.getCommandType()){
@@ -64,7 +68,7 @@ public class Manager {
 				if(game.getID() == Consts.DISCONNECTED){
 					game.setID(data.getID());
 					game.addPlayer(data.getID(), data.getUsername());
-					state = State.Lobby;
+					changeState(State.Lobby);
 					Logger.log(Logger.INFO, "Logged Into Server");
 				} else {
 					game.addPlayer(data.getID() ,data.getUsername());
@@ -78,7 +82,7 @@ public class Manager {
 			case Consts.TYPE_LOGOUT:
 				if (data.getID() == game.getID()){
 					Logger.log(Logger.INFO, "Logged out");
-					state = State.Login;
+					changeState(State.Login);
 					startGame();
 				} else {
 					game.removePlayer(data.getID());
@@ -88,7 +92,6 @@ public class Manager {
 			default:
 				Logger.log(Logger.WORNING, "command did not get processed");
 		}
-		updated = true;
 	}
 	
 	private listenerCBs initCBs(){
@@ -125,12 +128,12 @@ public class Manager {
 				live = false;
 			}
 			
-			public boolean updated(){
-				return updated;
+			public boolean stateChanged(){
+				return stateChanged;
 			}
 			
-			public void finishedUpdating(){
-				updated = false;
+			public void stateSet(){
+				stateChanged = false;
 			}
 			
 			public void connect(String username, String password) {

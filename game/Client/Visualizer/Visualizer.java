@@ -13,6 +13,7 @@ import Client.Manager.ICallbacks;
 import Client.Manager.Manager;
 import Client.Manager.Properties;
 import Client.Visualizer.Interface.*;
+import Client.Visualizer.util.Time;
 import GameLibrary.*;
 
 /*
@@ -27,18 +28,19 @@ public class Visualizer extends Thread {
 	private ICallbacks.visualizerCBs cbs;
 
 	// time
-	//private long lastFrame = Time.getTime();
-	//private int delta, fps, fpscount;
+	private long lastFrame = Time.getTime();
+	private int delta, fps, fpscount;
 
+	private Manager.State state;
+	
 	// primary game objects
 	//private Camera camera = new Camera();
 	//private Character player;
-	//private GameClient game;
+	private GameClient game;
 	//private Map map;
 
 	//inputs
 	boolean keyUp, keyDown, keyLeft, keyRight, mouseLeft, changed;
-	int currentUI = -1;
 	private GUI gui;
 	
 
@@ -49,6 +51,9 @@ public class Visualizer extends Thread {
 
 	public void run() {
 		if(LWJGL.initOpenGL(properties.fullscreen, properties.width, properties.height)){
+			// update all the variables for the first time
+			updateVars();
+			
 			// main render loop
 			while(!Display.isCloseRequested()){
 				render();
@@ -74,32 +79,22 @@ public class Visualizer extends Thread {
 		glLoadIdentity();
 		
 		// processes according to the state of the game
-		switch(cbs.state()){
+		switch(state){
 			case Login:
-				// display menu
-				if (currentUI != Consts.GUI_LOGIN){
-					loadmenus(Consts.GUI_LOGIN);
-					currentUI = Consts.GUI_LOGIN;
-				}
+				((Login)gui.getChild(0)).update(fps);
 				break;
 			
 			case Lobby:
-				if (currentUI != Consts.GUI_LOBBY){
-					loadmenus(Consts.GUI_LOBBY);
-					currentUI = Consts.GUI_LOBBY;
-				}
-				if (cbs.updated() == true){
-					ArrayList<String[]> chat = cbs.game().getChat();
-					ArrayList<String> users = cbs.game().getUsernames();
-					((Lobby)gui.getChild(0)).update(users, chat);
-					cbs.finishedUpdating();
-				}
+					ArrayList<String[]> chat = game.getChat();
+					ArrayList<String> users = game.getUsernames();
+					((Lobby)gui.getChild(0)).update(users, chat, fps);
 				break;
 			
 			case Game:
 				break;
 		}
 		
+		//update gui
 		LWJGL.enable2D();
 		gui.update();
 		LWJGL.disable2D();
@@ -108,6 +103,9 @@ public class Visualizer extends Thread {
 		Display.update();
 		// sets the fps
 		Display.sync(60);
+		
+		// update variables
+		updateVars();
 	}
 	
 	/*private void drawTerrain(Vector3f trans, Vector3f rotate){
@@ -242,32 +240,39 @@ public class Visualizer extends Thread {
 		camera.position.y = -((float) Math.sin(Math.toRadians(camera.rotation.x))*10)+position.y;
 		camera.position.z = ((float) Math.cos(Math.toRadians(camera.rotation.y))*10)+position.z;
 	}
-	
+*/
+
 	private void updateVars(){
 
 		// get time between frames
-		delta = getDelta();
+		delta = Time.getDelta(lastFrame);
+		lastFrame = Time.getTime();
 		// get game data
 		game = cbs.game();
-		// get map data
-		map = game.map;
-		// get character data
-		player = game.getCharacter(game.getID());
+		//get game state
+		state = cbs.state();
 		
-		if (fpscount >= 1000){
-			fps = 1000/delta;
+		if (fpscount >= Consts.TIME_SECOND){
+			fps = Consts.TIME_SECOND/delta;
 			fpscount = 0;
 		}
 		fpscount += delta;
-	}*/
+		
+		if (cbs.stateChanged()){
+			loadmenus(state);
+			cbs.stateSet();
+		}
+	}
 	
-	private void loadmenus(int menu){
+	private void loadmenus(Manager.State menu){
 		switch(menu){
-			case Consts.GUI_LOGIN:
-				gui = Interface.createGUI(new Login(cbs), "Login");
+			case Login:
+				gui = Interface.createGUI(new Login(cbs, properties.debugMode), "Login");
 				break;
-			case Consts.GUI_LOBBY:
-				gui = Interface.createGUI(new Lobby(cbs), "Lobby");
+			case Lobby:
+				gui = Interface.createGUI(new Lobby(cbs, properties.debugMode), "Lobby");
+				break;
+			case Game:
 				break;
 		}
 	}
