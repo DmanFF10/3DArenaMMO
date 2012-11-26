@@ -1,4 +1,4 @@
-package Client.Visualizer.Interface;
+package Client.Visualizer.Interface.Panels;
 
 import de.matthiasmann.twl.DialogLayout;
 import de.matthiasmann.twl.Label;
@@ -13,13 +13,8 @@ public class debugPanel extends DialogLayout{
 		final Label rotZ = new Label ("Z Rotation: 0");
 	
 		public debugPanel(){
-		DialogLayout.Group hLabels = this.createParallelGroup(fps, x, y, z, rotX, rotY, rotZ);
-			this.setHorizontalGroup(hLabels);
-		
-			this.setVerticalGroup(this.createSequentialGroup()
-				.addWidget(fps)
-				.addWidget(x).addWidget(y).addWidget(z)
-				.addWidget(rotX).addWidget(rotY).addWidget(rotZ));
+			this.setHorizontalGroup(this.createParallelGroup(fps, x, y, z, rotX, rotY, rotZ));
+			this.setVerticalGroup(this.createSequentialGroup(fps, x, y, z, rotX, rotY, rotZ));
 		
 		this.setSize(50, 100);
 	}
