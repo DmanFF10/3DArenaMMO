@@ -54,8 +54,12 @@ public class Lobby extends Widget {
 
 	public void update(ArrayList<String> usernames, ArrayList<String[]> chat, int fps) {
 		chatFrame.update(chat);
+		int selected = playersListBox.getSelected();
 		sclm.clear();
 		sclm.addElements(usernames);
+		if (selected < sclm.getNumEntries()){
+			playersListBox.setSelected(selected);
+		}
 		debugPanel.update(fps, 0, 0, 0, 0, 0, 0);
 	}
 }

@@ -58,8 +58,9 @@ public class GameClient {
 	public ArrayList<String> getUsernames(){
 		ArrayList<String> list = new ArrayList<String>();
 		for (int i=0; i<players.size(); i++){
-			if (players.get(i) != null)
+			if (players.get(i) != null && players.get(i).getID() != id){
 				list.add(players.get(i).getUsername());
+			}
 		}
 		return list;
 	}
